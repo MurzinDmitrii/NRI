@@ -112,6 +112,11 @@ private fun BagItemRow(
                         Text("КД: $it", style = MaterialTheme.typography.bodySmall)
                     }
                 }
+                if (item.type == BagItemType.CARD) {
+                    item.uses?.let {
+                        Text("Использований: $it", style = MaterialTheme.typography.bodySmall)
+                    }
+                }
                 if (item.description.isNotBlank()) {
                     Text(item.description, style = MaterialTheme.typography.bodySmall)
                 }
@@ -159,6 +164,8 @@ private fun BagItemDialog(
 
     var typeMenuOpen by remember { mutableStateOf(false) }
     var weaponMenuOpen by remember { mutableStateOf(false) }
+
+    var uses by remember { mutableStateOf(initial?.uses?.toString() ?: "") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -261,6 +268,17 @@ private fun BagItemDialog(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                 }
+
+                if (type == BagItemType.CARD) {
+                    OutlinedTextField(
+                        value = uses,
+                        onValueChange = { input -> if (input.all { it.isDigit() }) uses = input },
+                        label = { Text("Количество использований") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         },
         confirmButton = {
@@ -275,7 +293,8 @@ private fun BagItemDialog(
                             quantity = quantity.toIntOrNull()?.coerceAtLeast(1) ?: 1,
                             weaponType = if (type == BagItemType.WEAPON) weaponType else null,
                             damage = if (type == BagItemType.WEAPON) damage.trim().ifBlank { null } else null,
-                            armorClass = if (type == BagItemType.ARMOR) armorClass.toIntOrNull() else null
+                            armorClass = if (type == BagItemType.ARMOR) armorClass.toIntOrNull() else null,
+                            uses = if (type == BagItemType.CARD) uses.toIntOrNull() else null,
                         )
                         onConfirm(result)
                     }
