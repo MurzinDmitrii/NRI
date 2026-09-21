@@ -3,26 +3,25 @@ package com.example.nri.ui.bag
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nri.data.BagItem
 import com.example.nri.data.BagItemType
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import com.example.nri.data.Card
 import com.example.nri.data.WeaponType
-import androidx.compose.material.icons.filled.Remove
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.foundation.layout.widthIn
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +30,7 @@ fun BagScreen(
     vm: BagViewModel = viewModel()
 ) {
     val items by vm.items.collectAsState()
+    val cards by vm.cards.collectAsState()
     var editing by remember { mutableStateOf<BagItem?>(null) }
     var showDialog by remember { mutableStateOf(false) }
 
@@ -70,6 +70,7 @@ fun BagScreen(
     if (showDialog) {
         BagItemDialog(
             initial = editing,
+            cards = cards,
             onDismiss = { showDialog = false },
             onConfirm = { item ->
                 vm.save(item)
@@ -122,7 +123,6 @@ private fun BagItemRow(
                 }
             }
 
-            // Блок количества
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { onQuantityChange(-1) }) {
                     Icon(Icons.Default.Remove, contentDescription = "Уменьшить")
@@ -149,6 +149,7 @@ private fun BagItemRow(
 @Composable
 private fun BagItemDialog(
     initial: BagItem?,
+    cards: List<Card>,
     onDismiss: () -> Unit,
     onConfirm: (BagItem) -> Unit
 ) {
@@ -164,6 +165,7 @@ private fun BagItemDialog(
 
     var typeMenuOpen by remember { mutableStateOf(false) }
     var weaponMenuOpen by remember { mutableStateOf(false) }
+    var cardMenuOpen by remember { mutableStateOf(false) }
 
     var uses by remember { mutableStateOf(initial?.uses?.toString() ?: "") }
 
@@ -175,17 +177,62 @@ private fun BagItemDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Название") },
-                    singleLine = true
-                )
+                // Название: для CARD — выпадающий список карт, для остальных — текстовое поле
+                if (type == BagItemType.CARD) {
+                    ExposedDropdownMenuBox(
+                        expanded = cardMenuOpen,
+                        onExpandedChange = { cardMenuOpen = !cardMenuOpen }
+                    ) {
+                        OutlinedTextField(
+                            value = name,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Карта") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(cardMenuOpen) },
+                            modifier = Modifier
+                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                                .fillMaxWidth()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = cardMenuOpen,
+                            onDismissRequest = { cardMenuOpen = false }
+                        ) {
+                            if (cards.isEmpty()) {
+                                DropdownMenuItem(
+                                    text = { Text("Сначала добавьте карты в Архив") },
+                                    onClick = { cardMenuOpen = false },
+                                    enabled = false
+                                )
+                            } else {
+                                cards.forEach { card ->
+                                    DropdownMenuItem(
+                                        text = { Text(card.name) },
+                                        onClick = {
+                                            name = card.name
+                                            description = card.description
+                                            cardMenuOpen = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text("Название") },
+                        singleLine = true
+                    )
+                }
+
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Описание") }
+                    label = { Text("Описание") },
+                    readOnly = type == BagItemType.CARD
                 )
+
                 OutlinedTextField(
                     value = quantity,
                     onValueChange = { input -> if (input.all { it.isDigit() }) quantity = input },

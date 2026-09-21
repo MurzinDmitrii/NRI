@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import com.example.nri.ui.theme.NRITheme
 import androidx.compose.foundation.layout.Box
 import com.example.nri.ui.bag.BagScreen
+import com.example.nri.ui.cards.CardArchiveScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +65,7 @@ fun NRIApp() {
                     AppDestinations.BAG       -> BagScreen()
                     AppDestinations.CHARACTER -> Greeting("Android")
                     AppDestinations.TABLET    -> Greeting("Планшет")
+                    AppDestinations.CARDS     -> CardArchiveScreen()
                 }
             }
         }
@@ -77,6 +79,7 @@ enum class AppDestinations(
     TABLET("Планшет", R.drawable.ic_tablet),
     CHARACTER("Персонаж", R.drawable.ic_account_box),
     BAG("Рюкзак", R.drawable.ic_list),
+    CARDS("Архив карт", R.drawable.ic_card_archive)
 }
 
 @Composable
