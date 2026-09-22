@@ -43,7 +43,8 @@ private val InfoCards = listOf(
 fun CharacterScreen(
     modifier: Modifier = Modifier,
     vm: CharacterViewModel = viewModel(),
-    statsVm: CharacterStatsViewModel = viewModel()
+    statsVm: CharacterStatsViewModel = viewModel(),
+    skillsVm: SkillsViewModel = viewModel()
 ) {
     val grams by vm.grams.collectAsState()
     val armorClass by vm.armorClass.collectAsState()
@@ -113,6 +114,9 @@ fun CharacterScreen(
 
             // Блок характеристик
             CharacterStatsBlock(statsVm)
+
+            // Блок навыков
+            SkillsBlock(skillsVm)
         }
     }
 
@@ -926,5 +930,187 @@ private fun CharacteristicCard(
 }
 
 /**
- * Блок информации персонажа: HP, КД, Урон, Грамм
+ * Блок навыков с возможностью добавления
  */
+@Composable
+private fun SkillsBlock(vm: SkillsViewModel) {
+    val skills by vm.skills.collectAsState()
+    var showAddDialog by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Заголовок с кнопкой добавления
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Навыки",
+                    style = MaterialTheme.typography.titleLarge
+                )
+                IconButton(onClick = { showAddDialog = true }) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = "Добавить навык"
+                    )
+                }
+            }
+
+            if (skills.isEmpty()) {
+                Text(
+                    text = "Нет навыков. Нажмите +, чтобы добавить.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    skills.forEach { skill ->
+                        SkillCard(
+                            skill = skill,
+                            onIncrementValue = { vm.incrementValue(skill.id) },
+                            onDecrementValue = { vm.decrementValue(skill.id) },
+                            onIncrementProgress = { vm.incrementProgress(skill.id) },
+                            onDecrementProgress = { vm.decrementProgress(skill.id) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    if (showAddDialog) {
+        AddSkillDialog(
+            onDismiss = { showAddDialog = false },
+            onConfirm = { name ->
+                vm.addSkill(name)
+                showAddDialog = false
+            }
+        )
+    }
+}
+
+/**
+ * Карточка навыка
+ */
+@Composable
+private fun SkillCard(
+    skill: SkillData,
+    onIncrementValue: () -> Unit,
+    onDecrementValue: () -> Unit,
+    onIncrementProgress: () -> Unit,
+    onDecrementProgress: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f))
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Заголовок с названием
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = skill.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onDecrementValue) {
+                        Icon(Icons.Default.Remove, contentDescription = "Уменьшить")
+                    }
+                    Text(
+                        text = "${skill.value}",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.width(32.dp),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                    IconButton(onClick = onIncrementValue) {
+                        Icon(Icons.Default.Add, contentDescription = "Увеличить")
+                    }
+                }
+            }
+
+            // Прогресс-бар
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onDecrementProgress) {
+                    Icon(Icons.Default.Remove, contentDescription = "Уменьшить прогресс")
+                }
+                LinearProgressIndicator(
+                    progress = skill.progress / 10f,
+                    modifier = Modifier.weight(1f).height(4.dp),
+                    color = MaterialTheme.colorScheme.secondary
+                )
+                IconButton(onClick = onIncrementProgress) {
+                    Icon(Icons.Default.Add, contentDescription = "Увеличить прогресс")
+                }
+            }
+            Text(
+                text = "${skill.progress} / 10",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 16.dp, top = 4.dp, end = 16.dp)
+            )
+        }
+    }
+}
+
+/**
+ * Диалог добавления нового навыка
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AddSkillDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Новый навык") },
+        text = {
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Название навыка") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Например: Боевое мастерство") }
+            )
+        },
+        confirmButton = {
+            TextButton(
+                enabled = name.isNotBlank(),
+                onClick = { onConfirm(name.trim()) }
+            ) {
+                Text("Добавить")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Отмена")
+            }
+        }
+    )
+}
+
