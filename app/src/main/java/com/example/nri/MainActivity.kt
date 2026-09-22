@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Box
 import com.example.nri.ui.bag.BagScreen
 import com.example.nri.ui.character.CharacterScreen
 import com.example.nri.ui.cards.CardArchiveScreen
+import com.example.nri.ui.notes.NoteScreen
 import com.example.nri.ui.tablet.TabletScreen
 
 class MainActivity : ComponentActivity() {
@@ -64,10 +65,11 @@ fun NRIApp() {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             Box(Modifier.padding(innerPadding)) {
                 when (currentDestination) {
-                    AppDestinations.BAG       -> BagScreen()
-                    AppDestinations.CHARACTER -> CharacterScreen()
-                    AppDestinations.TABLET    -> TabletScreen()
-                    AppDestinations.CARDS     -> CardArchiveScreen()
+                    AppDestinations.NOTES       -> NoteScreen()
+                    AppDestinations.BAG         -> BagScreen()
+                    AppDestinations.CHARACTER   -> CharacterScreen()
+                    AppDestinations.TABLET      -> TabletScreen()
+                    AppDestinations.CARDS       -> CardArchiveScreen()
                 }
             }
         }
@@ -78,6 +80,7 @@ enum class AppDestinations(
     val label: String,
     val icon: Int,
 ) {
+    NOTES("Заметки", R.drawable.ic_note),
     BAG("Рюкзак", R.drawable.ic_list),
     CHARACTER("Персонаж", R.drawable.ic_account_box),
     TABLET("Планшет", R.drawable.ic_tablet),

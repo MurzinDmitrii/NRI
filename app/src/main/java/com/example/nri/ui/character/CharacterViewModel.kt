@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 
 class CharacterViewModel(application: Application) : AndroidViewModel(application) {
     private val bagDao = AppDatabase.getInstance(application).bagItemDao()
@@ -43,6 +44,13 @@ class CharacterViewModel(application: Application) : AndroidViewModel(applicatio
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, "10")
 
+    val health: StateFlow<Int> = infoDao
+        .getAll()
+        .map { list ->
+            list.find { it.type == CharacterInfoType.HEALTH }?.value?.toIntOrNull() ?: 0
+        }
+        .stateIn(viewModelScope, SharingStarted.Lazily, 0)
+
     private suspend fun saveInfo(type: CharacterInfoType, value: String) {
         val updated = infoDao.updateValue(type, value)
         if (updated == 0) {
@@ -52,6 +60,19 @@ class CharacterViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun saveGrams(value: String) {
         viewModelScope.launch { saveInfo(CharacterInfoType.GOLD, value) }
+    }
+
+    fun saveHealth(value: Int) {
+        viewModelScope.launch { saveInfo(CharacterInfoType.HEALTH, value.toString()) }
+    }
+
+    fun initHealthIfNotSet(maxHealth: Int) {
+        viewModelScope.launch {
+            val existing = infoDao.getByType(CharacterInfoType.HEALTH)
+            if (existing == null) {
+                saveInfo(CharacterInfoType.HEALTH, maxHealth.toString())
+            }
+        }
     }
 
     fun saveArmorClass(value: String) {

@@ -5,7 +5,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nri.data.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
 
 class CharacterStatsViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getInstance(application).characteristicDao()
@@ -44,6 +48,10 @@ class CharacterStatsViewModel(application: Application) : AndroidViewModel(appli
     val endurance = initSub(SubCharacteristicType.ENDURANCE)
     val athletics = initSub(SubCharacteristicType.ATHLETICS)
     val resilience = initSub(SubCharacteristicType.RESILIENCE)
+
+    val maxHealth: StateFlow<Int> = resilience.map { res ->
+        10 + (3 * res.value)
+    }.stateIn(viewModelScope, SharingStarted.Lazily, 13)
 
     // Ловкость
     val speed = initSub(SubCharacteristicType.SPEED)

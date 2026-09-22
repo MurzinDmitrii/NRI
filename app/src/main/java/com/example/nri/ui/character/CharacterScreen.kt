@@ -30,7 +30,6 @@ private data class InfoCard(
 )
 
 private val InfoCards = listOf(
-    InfoCard(R.drawable.ic_favorite, "Здоровье", "100 / 100"),
     InfoCard(R.drawable.ic_shield, "Класс доспеха", "15"),
     InfoCard(R.drawable.ic_sword, "Урон", "1d8+3"),
     InfoCard(R.drawable.ic_coin, "Грамм", "250")
@@ -50,8 +49,20 @@ fun CharacterScreen(
     val armorClass by vm.armorClass.collectAsState()
     val armorList by vm.armorList.collectAsState()
     val selectedArmorName by vm.selectedArmorName.collectAsState()
+    val health by vm.health.collectAsState()
+    val maxHealth by statsVm.maxHealth.collectAsState()
     var gramsDialogOpen by remember { mutableStateOf(false) }
     var armorDialogOpen by remember { mutableStateOf(false) }
+    var healthDialogOpen by remember { mutableStateOf(false) }
+
+    // Инициализация здоровья равным maxHealth, если не сохранено
+    var initializedHealth by remember { mutableStateOf(false) }
+    LaunchedEffect(maxHealth) {
+        if (!initializedHealth) {
+            vm.initHealthIfNotSet(maxHealth)
+            initializedHealth = true
+        }
+    }
 
     Scaffold(
         modifier = modifier,
@@ -71,9 +82,13 @@ fun CharacterScreen(
         ) {
             // Блок информации
             CharacterInfoBlock(
+                health = health,
+                maxHealth = maxHealth,
                 grams = grams,
                 armorClass = armorClass,
                 selectedArmorName = selectedArmorName,
+                onHealthChange = { newHealth -> vm.saveHealth(newHealth) },
+                onHealthDialogOpen = { healthDialogOpen = true },
                 onGramsClick = { gramsDialogOpen = true },
                 onArmorClick = { armorDialogOpen = true }
             )
@@ -108,6 +123,15 @@ fun CharacterScreen(
         )
     }
 
+    if (healthDialogOpen) {
+        HealthDialog(
+            initial = health,
+            max = maxHealth,
+            onDismiss = { healthDialogOpen = false },
+            onConfirm = { value -> vm.saveHealth(value); healthDialogOpen = false }
+        )
+    }
+
 }
 
 /**
@@ -119,9 +143,13 @@ fun CharacterScreen(
  */
 @Composable
 private fun CharacterInfoBlock(
+    health: Int,
+    maxHealth: Int,
     grams: String,
     armorClass: String,
     selectedArmorName: String,
+    onHealthChange: (Int) -> Unit,
+    onHealthDialogOpen: () -> Unit,
     onGramsClick: () -> Unit,
     onArmorClick: () -> Unit
 ) {
@@ -141,9 +169,16 @@ private fun CharacterInfoBlock(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                InfoCardItem(InfoCards[0], modifier = Modifier.weight(1f))
+                HealthCardItem(
+                    current = health,
+                    max = maxHealth,
+                    onIncrement = { onHealthChange(health + 1) },
+                    onDecrement = { onHealthChange(health - 1) },
+                    onClick = onHealthDialogOpen,
+                    modifier = Modifier.weight(1f)
+                )
                 InfoCardItem(
-                    card = InfoCards[1].copy(valueText = armorClass),
+                    card = InfoCards[0].copy(valueText = armorClass),
                     modifier = Modifier.weight(1f),
                     onClick = onArmorClick
                 )
@@ -153,9 +188,9 @@ private fun CharacterInfoBlock(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                InfoCardItem(InfoCards[2], modifier = Modifier.weight(1f))
+                InfoCardItem(InfoCards[1], modifier = Modifier.weight(1f))
                 InfoCardItem(
-                    card = InfoCards[3].copy(valueText = grams),
+                    card = InfoCards[2].copy(valueText = grams),
                     modifier = Modifier.weight(1f),
                     onClick = onGramsClick
                 )
@@ -204,6 +239,76 @@ private fun InfoCardItem(
                     text = card.valueText,
                     style = MaterialTheme.typography.titleMedium
                 )
+            }
+        }
+    }
+}
+
+/**
+ * Карточка здоровья с кнопками +/-
+ */
+@Composable
+private fun HealthCardItem(
+    current: Int,
+    max: Int,
+    onIncrement: () -> Unit,
+    onDecrement: () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.then(
+            if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_favorite),
+                contentDescription = null,
+                modifier = Modifier.size(32.dp)
+            )
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Здоровье",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "$current / $max",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onDecrement) {
+                    Icon(
+                        Icons.Default.Remove,
+                        contentDescription = "Уменьшить здоровье",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(onClick = onIncrement) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = "Увеличить здоровье",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
         }
     }
@@ -317,6 +422,54 @@ private fun ArmorListItem(
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HealthDialog(
+    initial: Int,
+    max: Int,
+    onDismiss: () -> Unit,
+    onConfirm: (Int) -> Unit
+) {
+    var value by remember { mutableStateOf(initial) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Здоровье") },
+        text = {
+            Column {
+                Text(
+                    text = "Максимум: $max",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                OutlinedTextField(
+                    value = value.toString(),
+                    onValueChange = { input ->
+                        val parsed = input.toIntOrNull()
+                        if (parsed != null && parsed in 0..max) {
+                            value = parsed
+                        }
+                    },
+                    label = { Text("Текущее здоровье") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(value) }) {
+                Text("Сохранить")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Отмена")
+            }
+        }
+    )
 }
 
 /**
