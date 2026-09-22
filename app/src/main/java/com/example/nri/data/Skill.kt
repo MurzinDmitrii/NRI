@@ -28,4 +28,7 @@ interface SkillDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entity: Skill)
+
+    @Query("DELETE FROM skills WHERE id = :id")
+    suspend fun deleteSkill(id: Int)
 }

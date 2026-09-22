@@ -55,6 +55,7 @@ fun CharacterScreen(
     val weaponList by vm.weaponList.collectAsState()
     val selectedWeaponName by vm.selectedWeaponName.collectAsState()
     val weaponDamage by vm.weaponDamage.collectAsState()
+    val characterName by vm.characterName.collectAsState()
     val athletics by statsVm.athletics.collectAsState()
 
     val totalDamage by remember(weaponDamage, athletics) {
@@ -70,6 +71,7 @@ fun CharacterScreen(
     var armorDialogOpen by remember { mutableStateOf(false) }
     var weaponDialogOpen by remember { mutableStateOf(false) }
     var healthDialogOpen by remember { mutableStateOf(false) }
+    var nameDialogOpen by remember { mutableStateOf(false) }
 
     // Инициализация здоровья равным maxHealth, если не сохранено
     var initializedHealth by remember { mutableStateOf(false) }
@@ -84,7 +86,12 @@ fun CharacterScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text("Персонаж") }
+                title = {
+                    Text(
+                        text = if (characterName.isNotBlank()) characterName else "Персонаж",
+                        modifier = Modifier.clickable { nameDialogOpen = true }
+                    )
+                }
             )
         }
     ) { padding ->
@@ -168,6 +175,17 @@ fun CharacterScreen(
             max = maxHealth,
             onDismiss = { healthDialogOpen = false },
             onConfirm = { value -> vm.saveHealth(value); healthDialogOpen = false }
+        )
+    }
+
+    if (nameDialogOpen) {
+        NameDialog(
+            initial = characterName,
+            onDismiss = { nameDialogOpen = false },
+            onConfirm = { name ->
+                vm.saveCharacterName(name)
+                nameDialogOpen = false
+            }
         )
     }
 
@@ -936,6 +954,7 @@ private fun CharacteristicCard(
 private fun SkillsBlock(vm: SkillsViewModel) {
     val skills by vm.skills.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
+    var editSkill by remember { mutableStateOf<SkillData?>(null) }
 
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -978,7 +997,8 @@ private fun SkillsBlock(vm: SkillsViewModel) {
                             onIncrementValue = { vm.incrementValue(skill.id) },
                             onDecrementValue = { vm.decrementValue(skill.id) },
                             onIncrementProgress = { vm.incrementProgress(skill.id) },
-                            onDecrementProgress = { vm.decrementProgress(skill.id) }
+                            onDecrementProgress = { vm.decrementProgress(skill.id) },
+                            onEditClick = { editSkill = skill }
                         )
                     }
                 }
@@ -995,6 +1015,21 @@ private fun SkillsBlock(vm: SkillsViewModel) {
             }
         )
     }
+
+    editSkill?.let { skill ->
+        EditSkillDialog(
+            skill = skill,
+            onDismiss = { editSkill = null },
+            onNameChange = { newName ->
+                vm.updateSkillName(skill.id, newName)
+                editSkill = null
+            },
+            onDelete = {
+                vm.deleteSkill(skill.id)
+                editSkill = null
+            }
+        )
+    }
 }
 
 /**
@@ -1006,10 +1041,13 @@ private fun SkillCard(
     onIncrementValue: () -> Unit,
     onDecrementValue: () -> Unit,
     onIncrementProgress: () -> Unit,
-    onDecrementProgress: () -> Unit
+    onDecrementProgress: () -> Unit,
+    onEditClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onEditClick),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f))
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -1104,6 +1142,106 @@ private fun AddSkillDialog(
                 onClick = { onConfirm(name.trim()) }
             ) {
                 Text("Добавить")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Отмена")
+            }
+        }
+    )
+}
+
+/**
+ * Диалог редактирования навыка
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EditSkillDialog(
+    skill: SkillData,
+    onDismiss: () -> Unit,
+    onNameChange: (String) -> Unit,
+    onDelete: () -> Unit
+) {
+    var name by remember { mutableStateOf(skill.name) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Редактировать навык") },
+        text = {
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Название навыка") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = {
+            Column {
+                TextButton(
+                    enabled = name.isNotBlank(),
+                    onClick = { onNameChange(name.trim()) }
+                ) {
+                    Text("Сохранить")
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    TextButton(onClick = onDelete) {
+                        Text(
+                            "Удалить",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Отмена")
+            }
+        }
+    )
+}
+
+/**
+ * Диалог редактирования имени персонажа
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NameDialog(
+    initial: String,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var name by remember { mutableStateOf(initial) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Имя персонажа") },
+        text = {
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Имя") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = {
+            TextButton(
+                enabled = name.isNotBlank(),
+                onClick = { onConfirm(name.trim()) }
+            ) {
+                Text("Сохранить")
             }
         },
         dismissButton = {

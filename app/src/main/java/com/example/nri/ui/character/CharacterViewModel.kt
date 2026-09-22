@@ -70,6 +70,13 @@ class CharacterViewModel(application: Application) : AndroidViewModel(applicatio
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, 0)
 
+    val characterName: StateFlow<String> = infoDao
+        .getAll()
+        .map { list ->
+            list.find { it.type == CharacterInfoType.CHARACTER_NAME }?.value ?: ""
+        }
+        .stateIn(viewModelScope, SharingStarted.Lazily, "")
+
     private suspend fun saveInfo(type: CharacterInfoType, value: String) {
         val updated = infoDao.updateValue(type, value)
         if (updated == 0) {
@@ -122,5 +129,9 @@ class CharacterViewModel(application: Application) : AndroidViewModel(applicatio
             saveInfo(CharacterInfoType.ARMOR_CLASS, "10")
             saveInfo(CharacterInfoType.ARMOR_NAME, "")
         }
+    }
+
+    fun saveCharacterName(name: String) {
+        viewModelScope.launch { saveInfo(CharacterInfoType.CHARACTER_NAME, name) }
     }
 }

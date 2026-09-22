@@ -63,4 +63,17 @@ class SkillsViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
     }
+
+    fun deleteSkill(skillId: Int) {
+        viewModelScope.launch {
+            dao.deleteSkill(skillId)
+        }
+    }
+
+    fun updateSkillName(skillId: Int, newName: String) {
+        viewModelScope.launch {
+            val skill = dao.getById(skillId) ?: return@launch
+            dao.upsert(skill.copy(name = newName))
+        }
+    }
 }

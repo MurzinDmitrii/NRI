@@ -84,7 +84,7 @@ enum class AppDestinations(
     BAG("Рюкзак", R.drawable.ic_list),
     CHARACTER("Персонаж", R.drawable.ic_account_box),
     TABLET("Планшет", R.drawable.ic_tablet),
-    CARDS("Архив карт", R.drawable.ic_card_archive)
+    CARDS("Карты", R.drawable.ic_card_archive)
 }
 
 @Composable
