@@ -24,6 +24,7 @@ import com.example.nri.ui.theme.NRITheme
 import androidx.compose.foundation.layout.Box
 import com.example.nri.ui.bag.BagScreen
 import com.example.nri.ui.cards.CardArchiveScreen
+import com.example.nri.ui.tablet.TabletScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +65,7 @@ fun NRIApp() {
                 when (currentDestination) {
                     AppDestinations.BAG       -> BagScreen()
                     AppDestinations.CHARACTER -> Greeting("Android")
-                    AppDestinations.TABLET    -> Greeting("Планшет")
+                    AppDestinations.TABLET    -> TabletScreen()
                     AppDestinations.CARDS     -> CardArchiveScreen()
                 }
             }
@@ -76,9 +77,9 @@ enum class AppDestinations(
     val label: String,
     val icon: Int,
 ) {
-    TABLET("Планшет", R.drawable.ic_tablet),
-    CHARACTER("Персонаж", R.drawable.ic_account_box),
     BAG("Рюкзак", R.drawable.ic_list),
+    CHARACTER("Персонаж", R.drawable.ic_account_box),
+    TABLET("Планшет", R.drawable.ic_tablet),
     CARDS("Архив карт", R.drawable.ic_card_archive)
 }
 

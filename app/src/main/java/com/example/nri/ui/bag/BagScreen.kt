@@ -167,7 +167,7 @@ private fun BagItemDialog(
     var weaponMenuOpen by remember { mutableStateOf(false) }
     var cardMenuOpen by remember { mutableStateOf(false) }
 
-    var uses by remember { mutableStateOf(initial?.uses?.toString() ?: "") }
+    var uses by remember { mutableStateOf(initial?.uses?.toString() ?: "10") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -177,6 +177,34 @@ private fun BagItemDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
+                // Тип — первое поле
+                ExposedDropdownMenuBox(
+                    expanded = typeMenuOpen,
+                    onExpandedChange = { typeMenuOpen = !typeMenuOpen }
+                ) {
+                    OutlinedTextField(
+                        value = type.displayName,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Тип") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(typeMenuOpen) },
+                        modifier = Modifier
+                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                            .fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = typeMenuOpen,
+                        onDismissRequest = { typeMenuOpen = false }
+                    ) {
+                        BagItemType.entries.forEach { t ->
+                            DropdownMenuItem(
+                                text = { Text(t.displayName) },
+                                onClick = { type = t; typeMenuOpen = false }
+                            )
+                        }
+                    }
+                }
+
                 // Название: для CARD — выпадающий список карт, для остальных — текстовое поле
                 if (type == BagItemType.CARD) {
                     ExposedDropdownMenuBox(
@@ -242,31 +270,15 @@ private fun BagItemDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                ExposedDropdownMenuBox(
-                    expanded = typeMenuOpen,
-                    onExpandedChange = { typeMenuOpen = !typeMenuOpen }
-                ) {
+                if (type == BagItemType.CARD) {
                     OutlinedTextField(
-                        value = type.displayName,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Тип") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(typeMenuOpen) },
-                        modifier = Modifier
-                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                            .fillMaxWidth()
+                        value = uses,
+                        onValueChange = { input -> if (input.all { it.isDigit() }) uses = input },
+                        label = { Text("Количество использований") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth()
                     )
-                    ExposedDropdownMenu(
-                        expanded = typeMenuOpen,
-                        onDismissRequest = { typeMenuOpen = false }
-                    ) {
-                        BagItemType.entries.forEach { t ->
-                            DropdownMenuItem(
-                                text = { Text(t.displayName) },
-                                onClick = { type = t; typeMenuOpen = false }
-                            )
-                        }
-                    }
                 }
 
                 if (type == BagItemType.WEAPON) {
@@ -313,17 +325,6 @@ private fun BagItemDialog(
                         label = { Text("КД (класс доспеха)") },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                    )
-                }
-
-                if (type == BagItemType.CARD) {
-                    OutlinedTextField(
-                        value = uses,
-                        onValueChange = { input -> if (input.all { it.isDigit() }) uses = input },
-                        label = { Text("Количество использований") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }

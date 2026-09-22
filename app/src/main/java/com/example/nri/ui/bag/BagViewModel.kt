@@ -23,6 +23,9 @@ class BagViewModel(app: Application) : AndroidViewModel(app) {
     val cards: StateFlow<List<Card>> = cardRepository.cards
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    val cardItems: StateFlow<List<BagItem>> = bagRepository.cardItems
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
     fun save(item: BagItem) {
         viewModelScope.launch {
             if (item.id == 0L) bagRepository.add(item) else bagRepository.update(item)
