@@ -44,6 +44,25 @@ class CharacterViewModel(application: Application) : AndroidViewModel(applicatio
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, "10")
 
+    val weaponList: StateFlow<List<BagItem>> = bagDao
+        .getAll()
+        .map { list -> list.filter { it.type == BagItemType.WEAPON && it.damage != null } }
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    val selectedWeaponName: StateFlow<String> = infoDao
+        .getAll()
+        .map { list ->
+            list.find { it.type == CharacterInfoType.WEAPON_NAME }?.value ?: ""
+        }
+        .stateIn(viewModelScope, SharingStarted.Lazily, "")
+
+    val weaponDamage: StateFlow<String> = infoDao
+        .getAll()
+        .map { list ->
+            list.find { it.type == CharacterInfoType.WEAPON_DAMAGE }?.value ?: ""
+        }
+        .stateIn(viewModelScope, SharingStarted.Lazily, "")
+
     val health: StateFlow<Int> = infoDao
         .getAll()
         .map { list ->
@@ -81,6 +100,21 @@ class CharacterViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun saveSelectedArmor(name: String) {
         viewModelScope.launch { saveInfo(CharacterInfoType.ARMOR_NAME, name) }
+    }
+
+    fun saveWeaponDamage(value: String) {
+        viewModelScope.launch { saveInfo(CharacterInfoType.WEAPON_DAMAGE, value) }
+    }
+
+    fun saveSelectedWeapon(name: String) {
+        viewModelScope.launch { saveInfo(CharacterInfoType.WEAPON_NAME, name) }
+    }
+
+    fun clearWeapon() {
+        viewModelScope.launch {
+            saveInfo(CharacterInfoType.WEAPON_NAME, "")
+            saveInfo(CharacterInfoType.WEAPON_DAMAGE, "")
+        }
     }
 
     fun clearArmor() {

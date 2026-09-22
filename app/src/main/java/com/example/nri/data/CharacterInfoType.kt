@@ -9,5 +9,7 @@ enum class CharacterInfoType {
     DAMAGE,
     GOLD,
     ARMOR_CLASS,
-    ARMOR_NAME
+    ARMOR_NAME,
+    WEAPON_NAME,
+    WEAPON_DAMAGE
 }

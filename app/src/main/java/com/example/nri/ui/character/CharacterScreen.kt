@@ -51,8 +51,23 @@ fun CharacterScreen(
     val selectedArmorName by vm.selectedArmorName.collectAsState()
     val health by vm.health.collectAsState()
     val maxHealth by statsVm.maxHealth.collectAsState()
+    val weaponList by vm.weaponList.collectAsState()
+    val selectedWeaponName by vm.selectedWeaponName.collectAsState()
+    val weaponDamage by vm.weaponDamage.collectAsState()
+    val athletics by statsVm.athletics.collectAsState()
+
+    val totalDamage by remember(weaponDamage, athletics) {
+        derivedStateOf {
+            if (weaponDamage.isNotEmpty()) {
+                "$weaponDamage + ${athletics.value}"
+            } else {
+                "—"
+            }
+        }
+    }
     var gramsDialogOpen by remember { mutableStateOf(false) }
     var armorDialogOpen by remember { mutableStateOf(false) }
+    var weaponDialogOpen by remember { mutableStateOf(false) }
     var healthDialogOpen by remember { mutableStateOf(false) }
 
     // Инициализация здоровья равным maxHealth, если не сохранено
@@ -87,10 +102,13 @@ fun CharacterScreen(
                 grams = grams,
                 armorClass = armorClass,
                 selectedArmorName = selectedArmorName,
+                selectedWeaponName = selectedWeaponName,
+                totalDamage = totalDamage,
                 onHealthChange = { newHealth -> vm.saveHealth(newHealth) },
                 onHealthDialogOpen = { healthDialogOpen = true },
                 onGramsClick = { gramsDialogOpen = true },
-                onArmorClick = { armorDialogOpen = true }
+                onArmorClick = { armorDialogOpen = true },
+                onWeaponClick = { weaponDialogOpen = true }
             )
 
             // Блок характеристик
@@ -123,6 +141,23 @@ fun CharacterScreen(
         )
     }
 
+    if (weaponDialogOpen) {
+        WeaponDialog(
+            weapons = weaponList,
+            selectedName = selectedWeaponName,
+            onDismiss = { weaponDialogOpen = false },
+            onSelect = { weapon ->
+                vm.saveSelectedWeapon(weapon.name)
+                vm.saveWeaponDamage(weapon.damage!!)
+                weaponDialogOpen = false
+            },
+            onClear = {
+                vm.clearWeapon()
+                weaponDialogOpen = false
+            }
+        )
+    }
+
     if (healthDialogOpen) {
         HealthDialog(
             initial = health,
@@ -148,10 +183,13 @@ private fun CharacterInfoBlock(
     grams: String,
     armorClass: String,
     selectedArmorName: String,
+    selectedWeaponName: String,
+    totalDamage: String,
     onHealthChange: (Int) -> Unit,
     onHealthDialogOpen: () -> Unit,
     onGramsClick: () -> Unit,
-    onArmorClick: () -> Unit
+    onArmorClick: () -> Unit,
+    onWeaponClick: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -188,7 +226,12 @@ private fun CharacterInfoBlock(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                InfoCardItem(InfoCards[1], modifier = Modifier.weight(1f))
+                WeaponCardItem(
+                    weaponName = selectedWeaponName,
+                    damageText = totalDamage,
+                    onClick = onWeaponClick,
+                    modifier = Modifier.weight(1f)
+                )
                 InfoCardItem(
                     card = InfoCards[2].copy(valueText = grams),
                     modifier = Modifier.weight(1f),
@@ -239,6 +282,59 @@ private fun InfoCardItem(
                     text = card.valueText,
                     style = MaterialTheme.typography.titleMedium
                 )
+            }
+        }
+    }
+}
+
+/**
+ * Карточка оружия с уроном
+ */
+@Composable
+private fun WeaponCardItem(
+    weaponName: String,
+    damageText: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.then(
+            Modifier.clickable(onClick = onClick)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_sword),
+                contentDescription = null,
+                modifier = Modifier.size(32.dp)
+            )
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Урон",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = if (weaponName.isNotEmpty()) damageText else "—",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                if (weaponName.isNotEmpty()) {
+                    Text(
+                        text = weaponName,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
@@ -368,10 +464,11 @@ private fun ArmorDialog(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    armors.forEach { armor ->
+                    armors.forEachIndexed { index, armor ->
+                        val isSelected = remember(index) { armor.name == selectedName }
                         ArmorListItem(
                             armor = armor,
-                            isSelected = armor.name == selectedName,
+                            isSelected = isSelected,
                             onClick = { onSelect(armor) }
                         )
                     }
@@ -411,6 +508,82 @@ private fun ArmorListItem(
         )
         Text(
             text = "КД: ${armor.armorClass}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        if (isSelected) {
+            Icon(
+                Icons.Default.Check,
+                contentDescription = "Выбрано",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun WeaponDialog(
+    weapons: List<BagItem>,
+    selectedName: String,
+    onDismiss: () -> Unit,
+    onSelect: (BagItem) -> Unit,
+    onClear: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Выберите оружие") },
+        text = {
+            if (weapons.isEmpty()) {
+                Text("В рюкзаке нет оружия")
+            } else {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    weapons.forEachIndexed { index, weapon ->
+                        val isSelected = remember(index) { weapon.name == selectedName }
+                        WeaponListItem(
+                            weapon = weapon,
+                            isSelected = isSelected,
+                            onClick = { onSelect(weapon) }
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Отмена")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onClear) {
+                Text("Снять")
+            }
+        }
+    )
+}
+
+@Composable
+private fun WeaponListItem(
+    weapon: BagItem,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = weapon.name,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = weapon.damage ?: "—",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
