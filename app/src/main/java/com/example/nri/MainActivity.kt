@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import com.example.nri.ui.theme.NRITheme
 import androidx.compose.foundation.layout.Box
 import com.example.nri.ui.bag.BagScreen
+import com.example.nri.ui.character.CharacterScreen
 import com.example.nri.ui.cards.CardArchiveScreen
 import com.example.nri.ui.tablet.TabletScreen
 
@@ -64,7 +65,7 @@ fun NRIApp() {
             Box(Modifier.padding(innerPadding)) {
                 when (currentDestination) {
                     AppDestinations.BAG       -> BagScreen()
-                    AppDestinations.CHARACTER -> Greeting("Android")
+                    AppDestinations.CHARACTER -> CharacterScreen()
                     AppDestinations.TABLET    -> TabletScreen()
                     AppDestinations.CARDS     -> CardArchiveScreen()
                 }
