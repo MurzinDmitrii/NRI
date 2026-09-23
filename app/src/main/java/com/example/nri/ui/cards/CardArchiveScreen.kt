@@ -5,7 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -66,81 +65,4 @@ fun CardArchiveScreen(
             }
         )
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun CardRow(
-    card: Card,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
-) {
-    Card(
-        onClick = onEdit,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp).fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text(card.name, style = MaterialTheme.typography.titleMedium)
-                if (card.description.isNotBlank()) {
-                    Text(card.description, style = MaterialTheme.typography.bodySmall)
-                }
-            }
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Удалить")
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun CardDialog(
-    initial: Card?,
-    onDismiss: () -> Unit,
-    onConfirm: (Card) -> Unit
-) {
-    var name by remember { mutableStateOf(initial?.name ?: "") }
-    var description by remember { mutableStateOf(initial?.description ?: "") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(if (initial == null) "Новая карта" else "Редактировать карту") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Название") },
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("Описание") }
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    if (name.isNotBlank()) {
-                        onConfirm(
-                            Card(
-                                id = initial?.id ?: 0,
-                                name = name.trim(),
-                                description = description.trim()
-                            )
-                        )
-                    }
-                }
-            ) { Text("Сохранить") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Отмена") }
-        }
-    )
 }
