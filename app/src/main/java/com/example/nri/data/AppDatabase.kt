@@ -11,8 +11,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [BagItem::class, Card::class, TabletCard::class, CharacterInfo::class, Characteristic::class, SubCharacteristic::class, Skill::class],
-    version = 9,
+    entities = [BagItem::class, Card::class, TabletCard::class, CharacterInfo::class, Characteristic::class, SubCharacteristic::class, Skill::class, Note::class],
+    version = 10,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -23,6 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun characterInfoDao(): CharacterInfoDao
     abstract fun characteristicDao(): CharacteristicDao
     abstract fun skillDao(): SkillDao
+    abstract fun noteDao(): NoteDao
 
     companion object {
         @Volatile
