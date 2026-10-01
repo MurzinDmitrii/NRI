@@ -17,11 +17,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.nri.R
+import com.example.nri.data.DiceType
 import kotlinx.coroutines.flow.StateFlow
 
 internal data class SubCharItem(
     val name: String,
     val dataFlow: StateFlow<SubCharacteristicData>,
+    val diceFlow: StateFlow<DiceType>,
     val onIncrementValue: () -> Unit,
     val onDecrementValue: () -> Unit,
     val onIncrementProgress: () -> Unit,
@@ -30,11 +32,26 @@ internal data class SubCharItem(
 )
 
 /**
+ * Цвета для типов кубов преимущества
+ */
+private val DiceType.color: Color
+    @Composable
+    get() = when (this) {
+        DiceType.LIGHT_4 -> Color(0xFFFFA726) // оранжевый
+        DiceType.MEDIUM_6 -> Color(0xFF66BB6A) // зелёный
+        DiceType.STRONG_8 -> Color(0xFF42A5F5) // синий
+        DiceType.MASTER_10 -> Color(0xFFAB47BC) // фиолетовый
+        DiceType.PERFECT_12 -> Color(0xFFFF7043) // красно-оранжевый
+        DiceType.DIVINE_20 -> Color(0xFFFF1744) // ярко-красный
+    }
+
+/**
  * Строка подхарактеристики
  */
 @Composable
 private fun SubCharacteristicRow(sub: SubCharItem) {
     val data by sub.dataFlow.collectAsState()
+    val dice by sub.diceFlow.collectAsState()
 
     Card(
         modifier = Modifier
@@ -64,6 +81,15 @@ private fun SubCharacteristicRow(sub: SubCharItem) {
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Куб преимущества
+                    Text(
+                        text = dice.label,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = dice.color,
+                        modifier = Modifier.width(32.dp),
+                        textAlign = TextAlign.Center
+                    )
+
                     IconButton(onClick = sub.onDecrementValue) {
                         Icon(Icons.Default.Remove, contentDescription = "Уменьшить")
                     }
@@ -116,6 +142,7 @@ private fun SubCharacteristicRow(sub: SubCharItem) {
 internal fun CharacteristicCard(
     title: String,
     data: StateFlow<CharacteristicData>,
+    dice: StateFlow<DiceType>,
     description: String,
     color: Color,
     expanded: Boolean,
@@ -127,6 +154,7 @@ internal fun CharacteristicCard(
     subCharacteristics: List<SubCharItem>
 ) {
     val charData by data.collectAsState()
+    val diceType by dice.collectAsState()
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -156,6 +184,15 @@ internal fun CharacteristicCard(
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Куб преимущества
+                    Text(
+                        text = diceType.label,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = diceType.color,
+                        modifier = Modifier.width(36.dp),
+                        textAlign = TextAlign.Center
+                    )
+
                     IconButton(onClick = onDecrementValue) {
                         Icon(Icons.Default.Remove, contentDescription = "Уменьшить")
                     }
@@ -245,6 +282,7 @@ internal fun CharacterStatsBlock(vm: CharacterStatsViewModel) {
             CharacteristicCard(
                 title = "Сила",
                 data = vm.strength,
+                dice = vm.strengthDice,
                 description = stringResource(R.string.char_strength),
                 color = MaterialTheme.colorScheme.error,
                 expanded = expandedStrength,
@@ -254,15 +292,16 @@ internal fun CharacterStatsBlock(vm: CharacterStatsViewModel) {
                 onIncrementProgress = { vm.incrementProgress(com.example.nri.data.CharacteristicType.STRENGTH) },
                 onDecrementProgress = { vm.decrementProgress(com.example.nri.data.CharacteristicType.STRENGTH) },
                 subCharacteristics = listOf(
-                    SubCharItem("Выносливость", vm.endurance, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.ENDURANCE) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.ENDURANCE) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.ENDURANCE) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.ENDURANCE) }, com.example.nri.R.string.sub_endurance),
-                    SubCharItem("Атлетизм", vm.athletics, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.ATHLETICS) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.ATHLETICS) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.ATHLETICS) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.ATHLETICS) }, com.example.nri.R.string.sub_athletics),
-                    SubCharItem("Живучесть", vm.resilience, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.RESILIENCE) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.RESILIENCE) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.RESILIENCE) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.RESILIENCE) }, com.example.nri.R.string.sub_resilience)
+                    SubCharItem("Выносливость", vm.endurance, vm.enduranceDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.ENDURANCE) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.ENDURANCE) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.ENDURANCE) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.ENDURANCE) }, com.example.nri.R.string.sub_endurance),
+                    SubCharItem("Атлетизм", vm.athletics, vm.athleticsDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.ATHLETICS) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.ATHLETICS) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.ATHLETICS) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.ATHLETICS) }, com.example.nri.R.string.sub_athletics),
+                    SubCharItem("Живучесть", vm.resilience, vm.resilienceDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.RESILIENCE) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.RESILIENCE) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.RESILIENCE) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.RESILIENCE) }, com.example.nri.R.string.sub_resilience)
                 )
             )
 
             CharacteristicCard(
                 title = "Ловкость",
                 data = vm.agility,
+                dice = vm.agilityDice,
                 description = stringResource(R.string.char_agility),
                 color = MaterialTheme.colorScheme.tertiary,
                 expanded = expandedAgility,
@@ -272,15 +311,16 @@ internal fun CharacterStatsBlock(vm: CharacterStatsViewModel) {
                 onIncrementProgress = { vm.incrementProgress(com.example.nri.data.CharacteristicType.AGILITY) },
                 onDecrementProgress = { vm.decrementProgress(com.example.nri.data.CharacteristicType.AGILITY) },
                 subCharacteristics = listOf(
-                    SubCharItem("Скорость", vm.speed, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.SPEED) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.SPEED) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.SPEED) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.SPEED) }, com.example.nri.R.string.sub_speed),
-                    SubCharItem("Изворотливость", vm.evasion, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.EVASION) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.EVASION) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.EVASION) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.EVASION) }, com.example.nri.R.string.sub_evasion),
-                    SubCharItem("Точность", vm.accuracy, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.ACCURACY) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.ACCURACY) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.ACCURACY) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.ACCURACY) }, com.example.nri.R.string.sub_accuracy)
+                    SubCharItem("Скорость", vm.speed, vm.speedDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.SPEED) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.SPEED) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.SPEED) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.SPEED) }, com.example.nri.R.string.sub_speed),
+                    SubCharItem("Изворотливость", vm.evasion, vm.evasionDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.EVASION) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.EVASION) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.EVASION) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.EVASION) }, com.example.nri.R.string.sub_evasion),
+                    SubCharItem("Точность", vm.accuracy, vm.accuracyDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.ACCURACY) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.ACCURACY) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.ACCURACY) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.ACCURACY) }, com.example.nri.R.string.sub_accuracy)
                 )
             )
 
             CharacteristicCard(
                 title = "Интеллект",
                 data = vm.intelligence,
+                dice = vm.intelligenceDice,
                 description = stringResource(R.string.char_intelligence),
                 color = MaterialTheme.colorScheme.primary,
                 expanded = expandedIntelligence,
@@ -290,9 +330,9 @@ internal fun CharacterStatsBlock(vm: CharacterStatsViewModel) {
                 onIncrementProgress = { vm.incrementProgress(com.example.nri.data.CharacteristicType.INTELLIGENCE) },
                 onDecrementProgress = { vm.decrementProgress(com.example.nri.data.CharacteristicType.INTELLIGENCE) },
                 subCharacteristics = listOf(
-                    SubCharItem("Тактика", vm.tactics, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.TACTICS) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.TACTICS) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.TACTICS) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.TACTICS) }, com.example.nri.R.string.sub_tactics),
-                    SubCharItem("Мудрость", vm.wisdom, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.WISDOM) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.WISDOM) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.WISDOM) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.WISDOM) }, com.example.nri.R.string.sub_wisdom),
-                    SubCharItem("Восприятие", vm.perception, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.PERCEPTION) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.PERCEPTION) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.PERCEPTION) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.PERCEPTION) }, com.example.nri.R.string.sub_perception)
+                    SubCharItem("Тактика", vm.tactics, vm.tacticsDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.TACTICS) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.TACTICS) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.TACTICS) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.TACTICS) }, com.example.nri.R.string.sub_tactics),
+                    SubCharItem("Мудрость", vm.wisdom, vm.wisdomDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.WISDOM) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.WISDOM) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.WISDOM) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.WISDOM) }, com.example.nri.R.string.sub_wisdom),
+                    SubCharItem("Восприятие", vm.perception, vm.perceptionDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.PERCEPTION) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.PERCEPTION) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.PERCEPTION) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.PERCEPTION) }, com.example.nri.R.string.sub_perception)
                 )
             )
         }

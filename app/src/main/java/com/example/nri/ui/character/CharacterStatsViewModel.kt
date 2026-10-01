@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nri.data.*
+import com.example.nri.data.calculateMainCharAdvantage
+import com.example.nri.data.calculateSubCharAdvantage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -80,6 +82,34 @@ class CharacterStatsViewModel(application: Application) : AndroidViewModel(appli
         put(SubCharacteristicType.WISDOM, wisdom)
         put(SubCharacteristicType.PERCEPTION, perception)
     }
+
+    // Кубы преимущества для основных характеристик
+    val strengthDice: StateFlow<DiceType> = strength.map { calculateMainCharAdvantage(it.value).second }
+        .stateIn(viewModelScope, SharingStarted.Lazily, DiceType.LIGHT_4)
+    val agilityDice: StateFlow<DiceType> = agility.map { calculateMainCharAdvantage(it.value).second }
+        .stateIn(viewModelScope, SharingStarted.Lazily, DiceType.LIGHT_4)
+    val intelligenceDice: StateFlow<DiceType> = intelligence.map { calculateMainCharAdvantage(it.value).second }
+        .stateIn(viewModelScope, SharingStarted.Lazily, DiceType.LIGHT_4)
+
+    // Кубы преимущества для подхарактеристик
+    val enduranceDice: StateFlow<DiceType> = endurance.map { calculateSubCharAdvantage(SubCharacteristicType.ENDURANCE, it.value).second }
+        .stateIn(viewModelScope, SharingStarted.Lazily, DiceType.LIGHT_4)
+    val athleticsDice: StateFlow<DiceType> = athletics.map { calculateSubCharAdvantage(SubCharacteristicType.ATHLETICS, it.value).second }
+        .stateIn(viewModelScope, SharingStarted.Lazily, DiceType.LIGHT_4)
+    val resilienceDice: StateFlow<DiceType> = resilience.map { calculateSubCharAdvantage(SubCharacteristicType.RESILIENCE, it.value).second }
+        .stateIn(viewModelScope, SharingStarted.Lazily, DiceType.LIGHT_4)
+    val speedDice: StateFlow<DiceType> = speed.map { calculateSubCharAdvantage(SubCharacteristicType.SPEED, it.value).second }
+        .stateIn(viewModelScope, SharingStarted.Lazily, DiceType.LIGHT_4)
+    val evasionDice: StateFlow<DiceType> = evasion.map { calculateSubCharAdvantage(SubCharacteristicType.EVASION, it.value).second }
+        .stateIn(viewModelScope, SharingStarted.Lazily, DiceType.LIGHT_4)
+    val accuracyDice: StateFlow<DiceType> = accuracy.map { calculateSubCharAdvantage(SubCharacteristicType.ACCURACY, it.value).second }
+        .stateIn(viewModelScope, SharingStarted.Lazily, DiceType.LIGHT_4)
+    val tacticsDice: StateFlow<DiceType> = tactics.map { calculateSubCharAdvantage(SubCharacteristicType.TACTICS, it.value).second }
+        .stateIn(viewModelScope, SharingStarted.Lazily, DiceType.LIGHT_4)
+    val wisdomDice: StateFlow<DiceType> = wisdom.map { calculateSubCharAdvantage(SubCharacteristicType.WISDOM, it.value).second }
+        .stateIn(viewModelScope, SharingStarted.Lazily, DiceType.LIGHT_4)
+    val perceptionDice: StateFlow<DiceType> = perception.map { calculateSubCharAdvantage(SubCharacteristicType.PERCEPTION, it.value).second }
+        .stateIn(viewModelScope, SharingStarted.Lazily, DiceType.LIGHT_4)
 
     private fun saveChar(type: CharacteristicType, value: Int, progress: Int) {
         viewModelScope.launch {
