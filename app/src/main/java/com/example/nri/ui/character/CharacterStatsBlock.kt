@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 internal data class SubCharItem(
     val name: String,
     val dataFlow: StateFlow<SubCharacteristicData>,
-    val diceFlow: StateFlow<DiceType>,
+    val diceFlow: StateFlow<DiceType?>,
     val onIncrementValue: () -> Unit,
     val onDecrementValue: () -> Unit,
     val onIncrementProgress: () -> Unit,
@@ -46,7 +46,7 @@ private val DiceType.color: Color
     }
 
 /**
- * Строка подхарактеристики
+ * Строка подхарактеристики — вертикальное расположение
  */
 @Composable
 private fun SubCharacteristicRow(sub: SubCharItem) {
@@ -63,33 +63,44 @@ private fun SubCharacteristicRow(sub: SubCharItem) {
                 .fillMaxWidth()
                 .padding(12.dp)
         ) {
+            // Название
+            Text(
+                text = sub.name,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            // Описание
+            Text(
+                text = stringResource(sub.descriptionRes),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+
+            // Куб, значение и кнопки управления
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.weight(1f)) {
+                // Куб преимущества (только если есть преимущество)
+                if (dice != null) {
+                    val d = dice!!
                     Text(
-                        text = sub.name,
-                        style = MaterialTheme.typography.bodyMedium
+                        text = d.label,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = d.color,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.width(40.dp)
                     )
-                    Text(
-                        text = stringResource(sub.descriptionRes),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                } else {
+                    Spacer(modifier = Modifier.width(40.dp))
                 }
 
+                // Значение с кнопками
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Куб преимущества
-                    Text(
-                        text = dice.label,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = dice.color,
-                        modifier = Modifier.width(32.dp),
-                        textAlign = TextAlign.Center
-                    )
-
                     IconButton(onClick = sub.onDecrementValue) {
                         Icon(Icons.Default.Remove, contentDescription = "Уменьшить")
                     }
@@ -97,7 +108,7 @@ private fun SubCharacteristicRow(sub: SubCharItem) {
                         text = "${data.value}",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.width(24.dp),
+                        modifier = Modifier.width(32.dp),
                         textAlign = TextAlign.Center
                     )
                     IconButton(onClick = sub.onIncrementValue) {
@@ -118,7 +129,7 @@ private fun SubCharacteristicRow(sub: SubCharItem) {
                     Icon(Icons.Default.Remove, contentDescription = "Уменьшить прогресс")
                 }
                 LinearProgressIndicator(
-                    progress = data.progress / 10f,
+                    progress = { data.progress / 10f },
                     modifier = Modifier.weight(1f).height(3.dp)
                 )
                 IconButton(onClick = sub.onIncrementProgress) {
@@ -136,13 +147,13 @@ private fun SubCharacteristicRow(sub: SubCharItem) {
 }
 
 /**
- * Раскрывающаяся карточка характеристики
+ * Раскрывающаяся карточка характеристики — вертикальное расположение
  */
 @Composable
 internal fun CharacteristicCard(
     title: String,
     data: StateFlow<CharacteristicData>,
-    dice: StateFlow<DiceType>,
+    dice: StateFlow<DiceType?>,
     description: String,
     color: Color,
     expanded: Boolean,
@@ -161,7 +172,7 @@ internal fun CharacteristicCard(
         colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f))
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Заголовок
+            // Заголовок с названием
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -170,29 +181,51 @@ internal fun CharacteristicCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = color
+                )
+
+                Icon(
+                    imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    contentDescription = if (expanded) "Свернуть" else "Развернуть",
+                    tint = color
+                )
+            }
+
+            // Описание
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            // Куб, значение и кнопки управления
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Куб преимущества (только если есть преимущество)
+                if (diceType != null) {
+                    val d = diceType!!
                     Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = color
+                        text = d.label,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = d.color,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.width(44.dp)
                     )
-                    Text(
-                        text = description,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                } else {
+                    Spacer(modifier = Modifier.width(44.dp))
                 }
 
+                // Значение с кнопками
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Куб преимущества
-                    Text(
-                        text = diceType.label,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = diceType.color,
-                        modifier = Modifier.width(36.dp),
-                        textAlign = TextAlign.Center
-                    )
-
                     IconButton(onClick = onDecrementValue) {
                         Icon(Icons.Default.Remove, contentDescription = "Уменьшить")
                     }
@@ -200,19 +233,13 @@ internal fun CharacteristicCard(
                         text = "${charData.value}",
                         style = MaterialTheme.typography.titleLarge,
                         color = color,
-                        modifier = Modifier.width(32.dp),
+                        modifier = Modifier.width(40.dp),
                         textAlign = TextAlign.Center
                     )
                     IconButton(onClick = onIncrementValue) {
                         Icon(Icons.Default.Add, contentDescription = "Увеличить")
                     }
                 }
-
-                Icon(
-                    imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = if (expanded) "Свернуть" else "Развернуть",
-                    tint = color
-                )
             }
 
             // Прогресс-бар
@@ -227,7 +254,7 @@ internal fun CharacteristicCard(
                     Icon(Icons.Default.Remove, contentDescription = "Уменьшить прогресс")
                 }
                 LinearProgressIndicator(
-                    progress = charData.progress / 10f,
+                    progress = { charData.progress / 10f },
                     modifier = Modifier.weight(1f).height(4.dp),
                     color = color
                 )
