@@ -32,4 +32,10 @@ class Converters {
 
     @TypeConverter
     fun toSubCharacteristicType(value: String): SubCharacteristicType = SubCharacteristicType.valueOf(value)
+
+    @TypeConverter
+    fun fromDamageType(value: DamageType?): String? = value?.name
+
+    @TypeConverter
+    fun toDamageType(value: String?): DamageType? = value?.let { DamageType.valueOf(it) }
 }

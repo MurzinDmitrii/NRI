@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -12,7 +13,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [BagItem::class, Card::class, TabletCard::class, CharacterInfo::class, Characteristic::class, SubCharacteristic::class, Skill::class, Note::class],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -36,6 +37,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "nri-database"
                 )
+                    .addMigrations(MIGRATION_10_11)
                     .addCallback(object : RoomDatabase.Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
@@ -49,5 +51,13 @@ abstract class AppDatabase : RoomDatabase() {
                     })
                     .build().also { INSTANCE = it }
             }
+    }
+}
+
+private val MIGRATION_10_11 = object : Migration(10, 11) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "ALTER TABLE bag_items ADD COLUMN damageType TEXT"
+        )
     }
 }

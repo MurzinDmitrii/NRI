@@ -11,6 +11,7 @@ data class BagItem(
     val type: BagItemType,
     val weaponType: WeaponType? = null,
     val damage: String? = null,
+    val damageType: DamageType? = null,
     val armorClass: Int? = null,
     val quantity: Int = 1,
     val uses: Int? = null,

@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.example.nri.data.BagItem
 import com.example.nri.data.BagItemType
 import com.example.nri.data.Card
+import com.example.nri.data.DamageType
 import com.example.nri.data.WeaponType
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,12 +33,14 @@ internal fun BagItemDialog(
     var quantity by remember { mutableStateOf((initial?.quantity ?: 1).toString()) }
 
     var weaponType by remember { mutableStateOf(initial?.weaponType ?: WeaponType.ONE_HANDED) }
+    var damageType by remember { mutableStateOf(initial?.damageType ?: DamageType.PIERCING) }
     var damage by remember { mutableStateOf(initial?.damage ?: "") }
 
     var armorClass by remember { mutableStateOf(initial?.armorClass?.toString() ?: "") }
 
     var typeMenuOpen by remember { mutableStateOf(false) }
     var weaponMenuOpen by remember { mutableStateOf(false) }
+    var damageTypeMenuOpen by remember { mutableStateOf(false) }
     var cardMenuOpen by remember { mutableStateOf(false) }
 
     var uses by remember { mutableStateOf(initial?.uses?.toString() ?: "10") }
@@ -181,6 +184,32 @@ internal fun BagItemDialog(
                             }
                         }
                     }
+                    ExposedDropdownMenuBox(
+                        expanded = damageTypeMenuOpen,
+                        onExpandedChange = { damageTypeMenuOpen = !damageTypeMenuOpen }
+                    ) {
+                        OutlinedTextField(
+                            value = damageType.displayName,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Тип урона") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(damageTypeMenuOpen) },
+                            modifier = Modifier
+                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                                .fillMaxWidth()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = damageTypeMenuOpen,
+                            onDismissRequest = { damageTypeMenuOpen = false }
+                        ) {
+                            DamageType.entries.forEach { dt ->
+                                DropdownMenuItem(
+                                    text = { Text(dt.displayName) },
+                                    onClick = { damageType = dt; damageTypeMenuOpen = false }
+                                )
+                            }
+                        }
+                    }
                     OutlinedTextField(
                         value = damage,
                         onValueChange = { damage = it },
@@ -213,6 +242,7 @@ internal fun BagItemDialog(
                             type = type,
                             quantity = quantity.toIntOrNull()?.coerceAtLeast(1) ?: 1,
                             weaponType = if (type == BagItemType.WEAPON) weaponType else null,
+                            damageType = if (type == BagItemType.WEAPON) damageType else null,
                             damage = if (type == BagItemType.WEAPON) damage.trim().ifBlank { null } else null,
                             armorClass = if (type == BagItemType.ARMOR) armorClass.toIntOrNull() else null,
                             uses = if (type == BagItemType.CARD) uses.toIntOrNull() else null,

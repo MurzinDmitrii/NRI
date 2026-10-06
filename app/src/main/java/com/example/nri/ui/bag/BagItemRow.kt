@@ -38,6 +38,9 @@ internal fun BagItemRow(
                     item.weaponType?.let {
                         Text("Тип оружия: ${it.displayName}", style = MaterialTheme.typography.bodySmall)
                     }
+                    item.damageType?.let {
+                        Text("Тип урона: ${it.displayName}", style = MaterialTheme.typography.bodySmall)
+                    }
                     item.damage?.let {
                         Text("Урон: $it", style = MaterialTheme.typography.bodySmall)
                     }
