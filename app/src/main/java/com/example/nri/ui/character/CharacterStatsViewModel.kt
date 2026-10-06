@@ -13,6 +13,21 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
 
+/**
+ * Отображение подхарактеристик на основные характеристики
+ */
+private val subToParent = mapOf(
+    SubCharacteristicType.ENDURANCE to CharacteristicType.STRENGTH,
+    SubCharacteristicType.ATHLETICS to CharacteristicType.STRENGTH,
+    SubCharacteristicType.RESILIENCE to CharacteristicType.STRENGTH,
+    SubCharacteristicType.SPEED to CharacteristicType.AGILITY,
+    SubCharacteristicType.EVASION to CharacteristicType.AGILITY,
+    SubCharacteristicType.ACCURACY to CharacteristicType.AGILITY,
+    SubCharacteristicType.TACTICS to CharacteristicType.INTELLIGENCE,
+    SubCharacteristicType.WISDOM to CharacteristicType.INTELLIGENCE,
+    SubCharacteristicType.PERCEPTION to CharacteristicType.INTELLIGENCE
+)
+
 class CharacterStatsViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getInstance(application).characteristicDao()
 
@@ -81,6 +96,14 @@ class CharacterStatsViewModel(application: Application) : AndroidViewModel(appli
         put(SubCharacteristicType.TACTICS, tactics)
         put(SubCharacteristicType.WISDOM, wisdom)
         put(SubCharacteristicType.PERCEPTION, perception)
+    }
+
+    // Флаги для показа диалога выбора улучшения
+    private val _showUpgradeDialog = MutableStateFlow<Map<CharacteristicType, Boolean>>(emptyMap())
+    val showUpgradeDialog: StateFlow<Map<CharacteristicType, Boolean>> = _showUpgradeDialog
+
+    fun clearUpgradeDialog(type: CharacteristicType) {
+        _showUpgradeDialog.value = _showUpgradeDialog.value - type
     }
 
     // Кубы преимущества для основных характеристик
@@ -156,7 +179,10 @@ class CharacterStatsViewModel(application: Application) : AndroidViewModel(appli
             val current = dao.getByType(type) ?: return@launch
             val newProgress = current.progress + 1
             if (newProgress >= 10) {
-                saveChar(type, current.value + 1, 0)
+                // Сбрасываем прогресс, НЕ увеличивая значение
+                // Показываем диалог выбора улучшения
+                saveChar(type, current.value, 0)
+                _showUpgradeDialog.value = _showUpgradeDialog.value + (type to true)
             } else {
                 saveChar(type, current.value, newProgress)
             }
@@ -175,6 +201,10 @@ class CharacterStatsViewModel(application: Application) : AndroidViewModel(appli
     fun incrementSubValue(type: SubCharacteristicType) {
         viewModelScope.launch {
             val current = dao.getSubByType(type) ?: return@launch
+            val parentType = subToParent[type] ?: return@launch
+            val parent = dao.getByType(parentType) ?: return@launch
+            // Подхарактеристика не может превышать характеристику более чем на 1
+            if (current.value >= parent.value + 1) return@launch
             saveSub(type, current.value + 1, current.progress)
         }
     }

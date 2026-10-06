@@ -3,6 +3,8 @@ package com.example.nri.ui.character
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandLess
@@ -16,12 +18,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.nri.data.CharacteristicType
+import com.example.nri.data.SubCharacteristicType
 import com.example.nri.R
 import com.example.nri.data.DiceType
 import kotlinx.coroutines.flow.StateFlow
 
 internal data class SubCharItem(
     val name: String,
+    val type: com.example.nri.data.SubCharacteristicType,
     val dataFlow: StateFlow<SubCharacteristicData>,
     val diceFlow: StateFlow<DiceType?>,
     val onIncrementValue: () -> Unit,
@@ -290,6 +295,8 @@ internal fun CharacteristicCard(
  */
 @Composable
 internal fun CharacterStatsBlock(vm: CharacterStatsViewModel) {
+    val showUpgradeDialog by vm.showUpgradeDialog.collectAsState()
+
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -314,14 +321,14 @@ internal fun CharacterStatsBlock(vm: CharacterStatsViewModel) {
                 color = MaterialTheme.colorScheme.error,
                 expanded = expandedStrength,
                 onExpand = { expandedStrength = !expandedStrength },
-                onIncrementValue = { vm.incrementValue(com.example.nri.data.CharacteristicType.STRENGTH) },
-                onDecrementValue = { vm.decrementValue(com.example.nri.data.CharacteristicType.STRENGTH) },
-                onIncrementProgress = { vm.incrementProgress(com.example.nri.data.CharacteristicType.STRENGTH) },
-                onDecrementProgress = { vm.decrementProgress(com.example.nri.data.CharacteristicType.STRENGTH) },
+                onIncrementValue = { vm.incrementValue(CharacteristicType.STRENGTH) },
+                onDecrementValue = { vm.decrementValue(CharacteristicType.STRENGTH) },
+                onIncrementProgress = { vm.incrementProgress(CharacteristicType.STRENGTH) },
+                onDecrementProgress = { vm.decrementProgress(CharacteristicType.STRENGTH) },
                 subCharacteristics = listOf(
-                    SubCharItem("Выносливость", vm.endurance, vm.enduranceDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.ENDURANCE) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.ENDURANCE) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.ENDURANCE) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.ENDURANCE) }, com.example.nri.R.string.sub_endurance),
-                    SubCharItem("Атлетизм", vm.athletics, vm.athleticsDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.ATHLETICS) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.ATHLETICS) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.ATHLETICS) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.ATHLETICS) }, com.example.nri.R.string.sub_athletics),
-                    SubCharItem("Живучесть", vm.resilience, vm.resilienceDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.RESILIENCE) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.RESILIENCE) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.RESILIENCE) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.RESILIENCE) }, com.example.nri.R.string.sub_resilience)
+                    SubCharItem("Выносливость", SubCharacteristicType.ENDURANCE, vm.endurance, vm.enduranceDice, { vm.incrementSubValue(SubCharacteristicType.ENDURANCE) }, { vm.decrementSubValue(SubCharacteristicType.ENDURANCE) }, { vm.incrementSubProgress(SubCharacteristicType.ENDURANCE) }, { vm.decrementSubProgress(SubCharacteristicType.ENDURANCE) }, R.string.sub_endurance),
+                    SubCharItem("Атлетизм", SubCharacteristicType.ATHLETICS, vm.athletics, vm.athleticsDice, { vm.incrementSubValue(SubCharacteristicType.ATHLETICS) }, { vm.decrementSubValue(SubCharacteristicType.ATHLETICS) }, { vm.incrementSubProgress(SubCharacteristicType.ATHLETICS) }, { vm.decrementSubProgress(SubCharacteristicType.ATHLETICS) }, R.string.sub_athletics),
+                    SubCharItem("Живучесть", SubCharacteristicType.RESILIENCE, vm.resilience, vm.resilienceDice, { vm.incrementSubValue(SubCharacteristicType.RESILIENCE) }, { vm.decrementSubValue(SubCharacteristicType.RESILIENCE) }, { vm.incrementSubProgress(SubCharacteristicType.RESILIENCE) }, { vm.decrementSubProgress(SubCharacteristicType.RESILIENCE) }, R.string.sub_resilience)
                 )
             )
 
@@ -333,14 +340,14 @@ internal fun CharacterStatsBlock(vm: CharacterStatsViewModel) {
                 color = MaterialTheme.colorScheme.tertiary,
                 expanded = expandedAgility,
                 onExpand = { expandedAgility = !expandedAgility },
-                onIncrementValue = { vm.incrementValue(com.example.nri.data.CharacteristicType.AGILITY) },
-                onDecrementValue = { vm.decrementValue(com.example.nri.data.CharacteristicType.AGILITY) },
-                onIncrementProgress = { vm.incrementProgress(com.example.nri.data.CharacteristicType.AGILITY) },
-                onDecrementProgress = { vm.decrementProgress(com.example.nri.data.CharacteristicType.AGILITY) },
+                onIncrementValue = { vm.incrementValue(CharacteristicType.AGILITY) },
+                onDecrementValue = { vm.decrementValue(CharacteristicType.AGILITY) },
+                onIncrementProgress = { vm.incrementProgress(CharacteristicType.AGILITY) },
+                onDecrementProgress = { vm.decrementProgress(CharacteristicType.AGILITY) },
                 subCharacteristics = listOf(
-                    SubCharItem("Скорость", vm.speed, vm.speedDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.SPEED) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.SPEED) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.SPEED) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.SPEED) }, com.example.nri.R.string.sub_speed),
-                    SubCharItem("Изворотливость", vm.evasion, vm.evasionDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.EVASION) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.EVASION) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.EVASION) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.EVASION) }, com.example.nri.R.string.sub_evasion),
-                    SubCharItem("Точность", vm.accuracy, vm.accuracyDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.ACCURACY) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.ACCURACY) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.ACCURACY) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.ACCURACY) }, com.example.nri.R.string.sub_accuracy)
+                    SubCharItem("Скорость", SubCharacteristicType.SPEED, vm.speed, vm.speedDice, { vm.incrementSubValue(SubCharacteristicType.SPEED) }, { vm.decrementSubValue(SubCharacteristicType.SPEED) }, { vm.incrementSubProgress(SubCharacteristicType.SPEED) }, { vm.decrementSubProgress(SubCharacteristicType.SPEED) }, R.string.sub_speed),
+                    SubCharItem("Изворотливость", SubCharacteristicType.EVASION, vm.evasion, vm.evasionDice, { vm.incrementSubValue(SubCharacteristicType.EVASION) }, { vm.decrementSubValue(SubCharacteristicType.EVASION) }, { vm.incrementSubProgress(SubCharacteristicType.EVASION) }, { vm.decrementSubProgress(SubCharacteristicType.EVASION) }, R.string.sub_evasion),
+                    SubCharItem("Точность", SubCharacteristicType.ACCURACY, vm.accuracy, vm.accuracyDice, { vm.incrementSubValue(SubCharacteristicType.ACCURACY) }, { vm.decrementSubValue(SubCharacteristicType.ACCURACY) }, { vm.incrementSubProgress(SubCharacteristicType.ACCURACY) }, { vm.decrementSubProgress(SubCharacteristicType.ACCURACY) }, R.string.sub_accuracy)
                 )
             )
 
@@ -352,16 +359,138 @@ internal fun CharacterStatsBlock(vm: CharacterStatsViewModel) {
                 color = MaterialTheme.colorScheme.primary,
                 expanded = expandedIntelligence,
                 onExpand = { expandedIntelligence = !expandedIntelligence },
-                onIncrementValue = { vm.incrementValue(com.example.nri.data.CharacteristicType.INTELLIGENCE) },
-                onDecrementValue = { vm.decrementValue(com.example.nri.data.CharacteristicType.INTELLIGENCE) },
-                onIncrementProgress = { vm.incrementProgress(com.example.nri.data.CharacteristicType.INTELLIGENCE) },
-                onDecrementProgress = { vm.decrementProgress(com.example.nri.data.CharacteristicType.INTELLIGENCE) },
+                onIncrementValue = { vm.incrementValue(CharacteristicType.INTELLIGENCE) },
+                onDecrementValue = { vm.decrementValue(CharacteristicType.INTELLIGENCE) },
+                onIncrementProgress = { vm.incrementProgress(CharacteristicType.INTELLIGENCE) },
+                onDecrementProgress = { vm.decrementProgress(CharacteristicType.INTELLIGENCE) },
                 subCharacteristics = listOf(
-                    SubCharItem("Тактика", vm.tactics, vm.tacticsDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.TACTICS) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.TACTICS) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.TACTICS) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.TACTICS) }, com.example.nri.R.string.sub_tactics),
-                    SubCharItem("Мудрость", vm.wisdom, vm.wisdomDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.WISDOM) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.WISDOM) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.WISDOM) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.WISDOM) }, com.example.nri.R.string.sub_wisdom),
-                    SubCharItem("Восприятие", vm.perception, vm.perceptionDice, { vm.incrementSubValue(com.example.nri.data.SubCharacteristicType.PERCEPTION) }, { vm.decrementSubValue(com.example.nri.data.SubCharacteristicType.PERCEPTION) }, { vm.incrementSubProgress(com.example.nri.data.SubCharacteristicType.PERCEPTION) }, { vm.decrementSubProgress(com.example.nri.data.SubCharacteristicType.PERCEPTION) }, com.example.nri.R.string.sub_perception)
+                    SubCharItem("Тактика", SubCharacteristicType.TACTICS, vm.tactics, vm.tacticsDice, { vm.incrementSubValue(SubCharacteristicType.TACTICS) }, { vm.decrementSubValue(SubCharacteristicType.TACTICS) }, { vm.incrementSubProgress(SubCharacteristicType.TACTICS) }, { vm.decrementSubProgress(SubCharacteristicType.TACTICS) }, R.string.sub_tactics),
+                    SubCharItem("Мудрость", SubCharacteristicType.WISDOM, vm.wisdom, vm.wisdomDice, { vm.incrementSubValue(SubCharacteristicType.WISDOM) }, { vm.decrementSubValue(SubCharacteristicType.WISDOM) }, { vm.incrementSubProgress(SubCharacteristicType.WISDOM) }, { vm.decrementSubProgress(SubCharacteristicType.WISDOM) }, R.string.sub_wisdom),
+                    SubCharItem("Восприятие", SubCharacteristicType.PERCEPTION, vm.perception, vm.perceptionDice, { vm.incrementSubValue(SubCharacteristicType.PERCEPTION) }, { vm.decrementSubValue(SubCharacteristicType.PERCEPTION) }, { vm.incrementSubProgress(SubCharacteristicType.PERCEPTION) }, { vm.decrementSubProgress(SubCharacteristicType.PERCEPTION) }, R.string.sub_perception)
                 )
             )
         }
     }
+
+    // Диалог выбора улучшения для Силы
+    if (showUpgradeDialog[CharacteristicType.STRENGTH] == true) {
+        UpgradeChoiceDialog(
+            title = "Сила",
+            subCharacteristics = listOf(
+                "Выносливость" to SubCharacteristicType.ENDURANCE,
+                "Атлетизм" to SubCharacteristicType.ATHLETICS,
+                "Живучесть" to SubCharacteristicType.RESILIENCE
+            ),
+            onUpgradeMain = {
+                vm.incrementValue(CharacteristicType.STRENGTH)
+                vm.clearUpgradeDialog(CharacteristicType.STRENGTH)
+            },
+            onUpgradeSub = { subType ->
+                vm.incrementSubValue(subType)
+                vm.clearUpgradeDialog(CharacteristicType.STRENGTH)
+            },
+            onDismiss = { vm.clearUpgradeDialog(CharacteristicType.STRENGTH) }
+        )
+    }
+
+    // Диалог выбора улучшения для Ловкости
+    if (showUpgradeDialog[CharacteristicType.AGILITY] == true) {
+        UpgradeChoiceDialog(
+            title = "Ловкость",
+            subCharacteristics = listOf(
+                "Скорость" to SubCharacteristicType.SPEED,
+                "Изворотливость" to SubCharacteristicType.EVASION,
+                "Точность" to SubCharacteristicType.ACCURACY
+            ),
+            onUpgradeMain = {
+                vm.incrementValue(CharacteristicType.AGILITY)
+                vm.clearUpgradeDialog(CharacteristicType.AGILITY)
+            },
+            onUpgradeSub = { subType ->
+                vm.incrementSubValue(subType)
+                vm.clearUpgradeDialog(CharacteristicType.AGILITY)
+            },
+            onDismiss = { vm.clearUpgradeDialog(CharacteristicType.AGILITY) }
+        )
+    }
+
+    // Диалог выбора улучшения для Интеллекта
+    if (showUpgradeDialog[CharacteristicType.INTELLIGENCE] == true) {
+        UpgradeChoiceDialog(
+            title = "Интеллект",
+            subCharacteristics = listOf(
+                "Тактика" to SubCharacteristicType.TACTICS,
+                "Мудрость" to SubCharacteristicType.WISDOM,
+                "Восприятие" to SubCharacteristicType.PERCEPTION
+            ),
+            onUpgradeMain = {
+                vm.incrementValue(CharacteristicType.INTELLIGENCE)
+                vm.clearUpgradeDialog(CharacteristicType.INTELLIGENCE)
+            },
+            onUpgradeSub = { subType ->
+                vm.incrementSubValue(subType)
+                vm.clearUpgradeDialog(CharacteristicType.INTELLIGENCE)
+            },
+            onDismiss = { vm.clearUpgradeDialog(CharacteristicType.INTELLIGENCE) }
+        )
+    }
+}
+
+/**
+ * Диалог выбора улучшения при достижении прогрессом значения 10
+ */
+@Composable
+private fun UpgradeChoiceDialog(
+    title: String,
+    subCharacteristics: List<Pair<String, SubCharacteristicType>>,
+    onUpgradeMain: () -> Unit,
+    onUpgradeSub: (SubCharacteristicType) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Выберите улучшение") },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "$title достигла максимума прогресса. Что улучшить?",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                // Увеличить основную характеристику
+                Button(
+                    onClick = onUpgradeMain,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Увеличить $title на 1")
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Или выберите подхарактеристику:",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                // Увеличить подхарактеристику
+                subCharacteristics.forEach { (name, type) ->
+                    Button(
+                        onClick = { onUpgradeSub(type) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                    ) {
+                        Text("Увеличить $name на 1")
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Отмена")
+            }
+        }
+    )
 }
