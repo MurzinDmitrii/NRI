@@ -34,6 +34,8 @@ fun CharacterScreen(
     val weaponDamage by vm.weaponDamage.collectAsState()
     val characterName by vm.characterName.collectAsState()
     val athletics by statsVm.athletics.collectAsState()
+    val tactics by statsVm.tactics.collectAsState()
+    val speed by statsVm.speed.collectAsState()
 
     val totalDamage by remember(weaponDamage, athletics) {
         derivedStateOf {
@@ -43,6 +45,26 @@ fun CharacterScreen(
                 "—"
             }
         }
+    }
+
+    // Расчёт действий на основе Тактики
+    // 1 базовое действие + бонус за тактику (+1 за каждые 5 единиц)
+    val totalActionsCount by remember(tactics.value) {
+        derivedStateOf { 1 + (tactics.value / 5) }
+    }
+    val bonusActionsCount by remember(tactics.value) {
+        derivedStateOf { 1 + (tactics.value / 2) }
+    }
+    val extraActionAvailable by remember(tactics.value) {
+        derivedStateOf { tactics.value >= 5 }
+    }
+
+    // Расчёт скорости на основе Скорости
+    val movementDistance by remember(speed.value) {
+        derivedStateOf { "${speed.value * 2}" }
+    }
+    val speedAdvantageLevel by remember(speed.value) {
+        derivedStateOf { speed.value / 3 }
     }
     var gramsDialogOpen by remember { mutableStateOf(false) }
     var armorDialogOpen by remember { mutableStateOf(false) }
@@ -93,7 +115,11 @@ fun CharacterScreen(
                 onHealthDialogOpen = { healthDialogOpen = true },
                 onGramsClick = { gramsDialogOpen = true },
                 onArmorClick = { armorDialogOpen = true },
-                onWeaponClick = { weaponDialogOpen = true }
+                onWeaponClick = { weaponDialogOpen = true },
+                totalActions = "$totalActionsCount",
+                bonusActions = "$bonusActionsCount",
+                movementDistance = movementDistance,
+                speedAdvantageLevel = speedAdvantageLevel
             )
 
             // Блок характеристик

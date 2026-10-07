@@ -40,7 +40,11 @@ internal fun CharacterInfoBlock(
     onHealthDialogOpen: () -> Unit,
     onGramsClick: () -> Unit,
     onArmorClick: () -> Unit,
-    onWeaponClick: () -> Unit
+    onWeaponClick: () -> Unit,
+    totalActions: String,
+    bonusActions: String,
+    movementDistance: String,
+    speedAdvantageLevel: Int
 ) {
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -87,6 +91,23 @@ internal fun CharacterInfoBlock(
                     card = InfoCards[2].copy(valueText = grams),
                     modifier = Modifier.weight(1f),
                     onClick = onGramsClick
+                )
+            }
+
+            // Блок действий и скорости в одной строке
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                ActionsCardItem(
+                    totalActions = totalActions,
+                    bonusActions = bonusActions,
+                    modifier = Modifier.weight(1f)
+                )
+                SpeedCardItem(
+                    movementDistance = movementDistance,
+                    advantageLevel = speedAdvantageLevel,
+                    modifier = Modifier.weight(1f)
                 )
             }
         }
@@ -245,6 +266,98 @@ private fun HealthCardItem(
                         Icons.Default.Add,
                         contentDescription = "Увеличить здоровье",
                         modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ActionsCardItem(
+    totalActions: String,
+    bonusActions: String,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_action),
+                contentDescription = null,
+                modifier = Modifier.size(32.dp)
+            )
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Действия",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "$totalActions действие",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = "Доп. действия: $bonusActions",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SpeedCardItem(
+    movementDistance: String,
+    advantageLevel: Int,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_speed),
+                contentDescription = null,
+                modifier = Modifier.size(32.dp)
+            )
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Скорость",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "Скорость: $movementDistance",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                if (advantageLevel > 0) {
+                    Text(
+                        text = "Преимущество: $advantageLevel",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
