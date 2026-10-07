@@ -33,6 +33,9 @@ fun CharacterScreen(
     val selectedWeaponName by vm.selectedWeaponName.collectAsState()
     val weaponDamage by vm.weaponDamage.collectAsState()
     val characterName by vm.characterName.collectAsState()
+    val biography by vm.biography.collectAsState()
+    val alignment by vm.alignment.collectAsState()
+    val interestingFeatures by vm.interestingFeatures.collectAsState()
     val athletics by statsVm.athletics.collectAsState()
     val tactics by statsVm.tactics.collectAsState()
     val speed by statsVm.speed.collectAsState()
@@ -73,7 +76,7 @@ fun CharacterScreen(
     var armorDialogOpen by remember { mutableStateOf(false) }
     var weaponDialogOpen by remember { mutableStateOf(false) }
     var healthDialogOpen by remember { mutableStateOf(false) }
-    var nameDialogOpen by remember { mutableStateOf(false) }
+    var quentaDialogOpen by remember { mutableStateOf(false) }
 
     // Инициализация здоровья равным maxHealth, если не сохранено
     var initializedHealth by remember { mutableStateOf(false) }
@@ -91,7 +94,7 @@ fun CharacterScreen(
                 title = {
                     Text(
                         text = if (characterName.isNotBlank()) characterName else "Персонаж",
-                        modifier = Modifier.clickable { nameDialogOpen = true }
+                        modifier = Modifier.clickable { quentaDialogOpen = true }
                     )
                 }
             )
@@ -184,13 +187,19 @@ fun CharacterScreen(
         )
     }
 
-    if (nameDialogOpen) {
-        NameDialog(
-            initial = characterName,
-            onDismiss = { nameDialogOpen = false },
-            onConfirm = { name ->
+    if (quentaDialogOpen) {
+        QuentaDialog(
+            initialName = characterName,
+            initialBiography = biography,
+            initialAlignment = alignment,
+            initialInterestingFeatures = interestingFeatures,
+            onDismiss = { quentaDialogOpen = false },
+            onConfirm = { name, bio, align, features ->
                 vm.saveCharacterName(name)
-                nameDialogOpen = false
+                vm.saveBiography(bio)
+                vm.saveAlignment(align)
+                vm.saveInterestingFeatures(features)
+                quentaDialogOpen = false
             }
         )
     }

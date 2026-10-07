@@ -6,9 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
-
-@OptIn(ExperimentalMaterial3Api::class)
+import androidx.compose.ui.unit.dp@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun GramsDialog(
     initial: String,
@@ -91,39 +89,3 @@ internal fun HealthDialog(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-internal fun NameDialog(
-    initial: String,
-    onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit
-) {
-    var name by remember { mutableStateOf(initial) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Имя персонажа") },
-        text = {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Имя") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        confirmButton = {
-            TextButton(
-                enabled = name.isNotBlank(),
-                onClick = { onConfirm(name.trim()) }
-            ) {
-                Text("Сохранить")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Отмена")
-            }
-        }
-    )
-}

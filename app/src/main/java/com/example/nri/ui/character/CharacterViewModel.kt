@@ -77,6 +77,27 @@ class CharacterViewModel(application: Application) : AndroidViewModel(applicatio
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, "")
 
+    val biography: StateFlow<String> = infoDao
+        .getAll()
+        .map { list ->
+            list.find { it.type == CharacterInfoType.BIOGRAPHY }?.value ?: ""
+        }
+        .stateIn(viewModelScope, SharingStarted.Lazily, "")
+
+    val alignment: StateFlow<String> = infoDao
+        .getAll()
+        .map { list ->
+            list.find { it.type == CharacterInfoType.ALIGNMENT }?.value ?: ""
+        }
+        .stateIn(viewModelScope, SharingStarted.Lazily, "")
+
+    val interestingFeatures: StateFlow<String> = infoDao
+        .getAll()
+        .map { list ->
+            list.find { it.type == CharacterInfoType.INTERESTING_FEATURES }?.value ?: ""
+        }
+        .stateIn(viewModelScope, SharingStarted.Lazily, "")
+
     private suspend fun saveInfo(type: CharacterInfoType, value: String) {
         val updated = infoDao.updateValue(type, value)
         if (updated == 0) {
@@ -133,5 +154,17 @@ class CharacterViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun saveCharacterName(name: String) {
         viewModelScope.launch { saveInfo(CharacterInfoType.CHARACTER_NAME, name) }
+    }
+
+    fun saveBiography(biography: String) {
+        viewModelScope.launch { saveInfo(CharacterInfoType.BIOGRAPHY, biography) }
+    }
+
+    fun saveAlignment(alignment: String) {
+        viewModelScope.launch { saveInfo(CharacterInfoType.ALIGNMENT, alignment) }
+    }
+
+    fun saveInterestingFeatures(features: String) {
+        viewModelScope.launch { saveInfo(CharacterInfoType.INTERESTING_FEATURES, features) }
     }
 }

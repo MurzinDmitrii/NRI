@@ -12,5 +12,8 @@ enum class CharacterInfoType {
     ARMOR_NAME,
     WEAPON_NAME,
     WEAPON_DAMAGE,
-    CHARACTER_NAME
+    CHARACTER_NAME,
+    BIOGRAPHY,
+    ALIGNMENT,
+    INTERESTING_FEATURES
 }
