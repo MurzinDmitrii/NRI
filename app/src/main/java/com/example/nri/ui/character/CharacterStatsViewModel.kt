@@ -44,14 +44,14 @@ class CharacterStatsViewModel(application: Application) : AndroidViewModel(appli
         return flow
     }
 
-    private fun initSub(type: SubCharacteristicType): MutableStateFlow<SubCharacteristicData> {
+    private fun initSub(type: SubCharacteristicType, defaultValue: Int = 0): MutableStateFlow<SubCharacteristicData> {
         val flow = MutableStateFlow(SubCharacteristicData(0, 0))
         viewModelScope.launch {
             val entity = dao.getSubByType(type)
             if (entity != null) {
                 flow.value = SubCharacteristicData(entity.value, entity.progress)
             } else {
-                dao.upsertSub(SubCharacteristic(0, type, 0, 0))
+                dao.upsertSub(SubCharacteristic(0, type, defaultValue, 0))
             }
         }
         return flow
@@ -71,7 +71,7 @@ class CharacterStatsViewModel(application: Application) : AndroidViewModel(appli
     }.stateIn(viewModelScope, SharingStarted.Lazily, 13)
 
     // Ловкость
-    val speed = initSub(SubCharacteristicType.SPEED)
+    val speed = initSub(SubCharacteristicType.SPEED, 10)
     val evasion = initSub(SubCharacteristicType.EVASION)
     val accuracy = initSub(SubCharacteristicType.ACCURACY)
 

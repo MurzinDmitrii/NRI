@@ -59,9 +59,12 @@ fun CharacterScreen(
         derivedStateOf { tactics.value >= 5 }
     }
 
-    // Расчёт скорости на основе Скорости
-    val movementDistance by remember(speed.value) {
-        derivedStateOf { "${speed.value * 2}" }
+    // Расчёт скорости на основе Скорости (базовое 5 + значение подхарактеристики)
+    val effectiveSpeed by remember(speed.value) {
+        derivedStateOf { 5 + speed.value }
+    }
+    val movementDistance by remember(effectiveSpeed) {
+        derivedStateOf { "${effectiveSpeed * 2}" }
     }
     val speedAdvantageLevel by remember(speed.value) {
         derivedStateOf { speed.value / 3 }
