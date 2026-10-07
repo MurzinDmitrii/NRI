@@ -12,8 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [BagItem::class, Card::class, TabletCard::class, BeltItem::class, CharacterInfo::class, Characteristic::class, SubCharacteristic::class, Skill::class, Note::class],
-    version = 12,
+    entities = [BagItem::class, Card::class, TabletCard::class, BeltItem::class, Setting::class, CharacterInfo::class, Characteristic::class, SubCharacteristic::class, Skill::class, Note::class],
+    version = 13,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -22,6 +22,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun cardDao(): CardDao
     abstract fun tabletCardDao(): TabletCardDao
     abstract fun beltItemDao(): BeltItemDao
+    abstract fun settingDao(): SettingDao
     abstract fun characterInfoDao(): CharacterInfoDao
     abstract fun characteristicDao(): CharacteristicDao
     abstract fun skillDao(): SkillDao
@@ -38,7 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "nri-database"
                 )
-                    .addMigrations(MIGRATION_10_11, MIGRATION_11_12)
+                    .addMigrations(MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13)
                     .addCallback(object : RoomDatabase.Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
@@ -73,5 +74,17 @@ private val MIGRATION_11_12 = object : Migration(11, 12) {
             )"""
         )
         db.execSQL("CREATE INDEX `index_belt_items_bagItemId` ON `belt_items` (`bagItemId`)")
+    }
+}
+
+private val MIGRATION_12_13 = object : Migration(12, 13) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """CREATE TABLE settings (
+                key TEXT PRIMARY KEY NOT NULL,
+                valueInt INTEGER,
+                valueString TEXT
+            )"""
+        )
     }
 }

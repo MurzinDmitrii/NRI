@@ -83,7 +83,7 @@ enum class AppDestinations(
     NOTES("Заметки", R.drawable.ic_note),
     BAG("Рюкзак", R.drawable.ic_list),
     CHARACTER("Персонаж", R.drawable.ic_account_box),
-    EQUIPMENT("Экипировка", R.drawable.ic_tablet),
+    EQUIPMENT("Оснастка", R.drawable.ic_tablet),
     CARDS("Карты", R.drawable.ic_card_archive)
 }
 
