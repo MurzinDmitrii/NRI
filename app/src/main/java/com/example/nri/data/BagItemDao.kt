@@ -33,6 +33,9 @@ interface BagItemDao {
     @Query("SELECT * FROM bag_items WHERE type = 'CARD' ORDER BY id DESC")
     fun getAllCards(): Flow<List<BagItem>>
 
+    @Query("SELECT * FROM bag_items WHERE type = 'POTION' ORDER BY id DESC")
+    fun getAllPotions(): Flow<List<BagItem>>
+
     @Query("UPDATE bag_items SET uses = :uses WHERE id = :id")
     suspend fun updateUses(id: Long, uses: Int)
 }

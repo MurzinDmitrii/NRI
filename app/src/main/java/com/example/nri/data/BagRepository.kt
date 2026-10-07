@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 class BagRepository(private val dao: BagItemDao) {
     val items: Flow<List<BagItem>> = dao.getAll()
     val cardItems: Flow<List<BagItem>> = dao.getAllCards()
+    val potionItems: Flow<List<BagItem>> = dao.getAllPotions()
 
     suspend fun add(item: BagItem) = dao.insert(item)
     suspend fun update(item: BagItem) = dao.update(item)

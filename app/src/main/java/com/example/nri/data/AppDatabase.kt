@@ -12,8 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [BagItem::class, Card::class, TabletCard::class, CharacterInfo::class, Characteristic::class, SubCharacteristic::class, Skill::class, Note::class],
-    version = 11,
+    entities = [BagItem::class, Card::class, TabletCard::class, BeltItem::class, CharacterInfo::class, Characteristic::class, SubCharacteristic::class, Skill::class, Note::class],
+    version = 12,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -21,6 +21,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun bagItemDao(): BagItemDao
     abstract fun cardDao(): CardDao
     abstract fun tabletCardDao(): TabletCardDao
+    abstract fun beltItemDao(): BeltItemDao
     abstract fun characterInfoDao(): CharacterInfoDao
     abstract fun characteristicDao(): CharacteristicDao
     abstract fun skillDao(): SkillDao
@@ -37,7 +38,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "nri-database"
                 )
-                    .addMigrations(MIGRATION_10_11)
+                    .addMigrations(MIGRATION_10_11, MIGRATION_11_12)
                     .addCallback(object : RoomDatabase.Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
@@ -59,5 +60,18 @@ private val MIGRATION_10_11 = object : Migration(10, 11) {
         db.execSQL(
             "ALTER TABLE bag_items ADD COLUMN damageType TEXT"
         )
+    }
+}
+
+private val MIGRATION_11_12 = object : Migration(11, 12) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """CREATE TABLE belt_items (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                bagItemId INTEGER NOT NULL,
+                FOREIGN KEY(bagItemId) REFERENCES bag_items(id) ON DELETE CASCADE
+            )"""
+        )
+        db.execSQL("CREATE INDEX `index_belt_items_bagItemId` ON `belt_items` (`bagItemId`)")
     }
 }
