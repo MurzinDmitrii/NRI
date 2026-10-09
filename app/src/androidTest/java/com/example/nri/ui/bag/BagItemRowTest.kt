@@ -18,7 +18,7 @@ class BagItemRowTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun `bagItemRow displays item name`() {
+    fun bagItemRow_displays_item_name() {
         val item = createTestWeaponItem()
 
         composeTestRule.setContent {
@@ -34,7 +34,7 @@ class BagItemRowTest {
     }
 
     @Test
-    fun `bagItemRow displays item type displayName`() {
+    fun bagItemRow_displays_item_type_displayName() {
         val item = createTestWeaponItem()
 
         composeTestRule.setContent {
@@ -50,7 +50,7 @@ class BagItemRowTest {
     }
 
     @Test
-    fun `bagItemRow displays weapon type and damage for WEAPON`() {
+    fun bagItemRow_displays_weapon_type_and_damage_for_WEAPON() {
         val item = createTestWeaponItem()
 
         composeTestRule.setContent {
@@ -67,7 +67,7 @@ class BagItemRowTest {
     }
 
     @Test
-    fun `bagItemRow displays armor class for ARMOR`() {
+    fun bagItemRow_displays_armor_class_for_ARMOR() {
         val item = BagItem(
             id = 1,
             name = "Кольчуга",
@@ -90,7 +90,7 @@ class BagItemRowTest {
     }
 
     @Test
-    fun `bagItemRow displays uses for CARD`() {
+    fun bagItemRow_displays_uses_for_CARD() {
         val item = BagItem(
             id = 1,
             name = "Карта молнии",
@@ -113,7 +113,7 @@ class BagItemRowTest {
     }
 
     @Test
-    fun `bagItemRow displays description when not blank`() {
+    fun bagItemRow_displays_description_when_not_blank() {
         val item = BagItem(
             id = 1,
             name = "Старый меч",
@@ -135,7 +135,7 @@ class BagItemRowTest {
     }
 
     @Test
-    fun `bagItemRow does not display description when blank`() {
+    fun bagItemRow_does_not_display_description_when_blank() {
         val item = BagItem(
             id = 1,
             name = "Вещь",
@@ -157,7 +157,7 @@ class BagItemRowTest {
     }
 
     @Test
-    fun `bagItemRow displays correct quantity`() {
+    fun bagItemRow_displays_correct_quantity() {
         val item = BagItem(
             id = 1,
             name = "Зелье",
@@ -179,7 +179,7 @@ class BagItemRowTest {
     }
 
     @Test
-    fun `bagItemRow does not show weapon fields for non-weapon items`() {
+    fun bagItemRow_does_not_show_weapon_fields_for_non_weapon_items() {
         val item = BagItem(
             id = 1,
             name = "Зелье лечения",

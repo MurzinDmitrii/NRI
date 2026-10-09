@@ -13,7 +13,7 @@ class NoteCardTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun `noteCard displays note title`() {
+    fun noteCard_displays_note_title() {
         val note = Note(id = 1, title = "Моя заметка", content = "Содержимое")
 
         composeTestRule.setContent {
@@ -28,7 +28,7 @@ class NoteCardTest {
     }
 
     @Test
-    fun `noteCard displays note content when not blank`() {
+    fun noteCard_displays_note_content_when_not_blank() {
         val note = Note(id = 1, title = "Заметка", content = "Текст заметки")
 
         composeTestRule.setContent {
@@ -43,7 +43,7 @@ class NoteCardTest {
     }
 
     @Test
-    fun `noteCard does not display content when blank`() {
+    fun noteCard_does_not_display_content_when_blank() {
         val note = Note(id = 1, title = "Заметка", content = "")
 
         composeTestRule.setContent {
@@ -58,7 +58,7 @@ class NoteCardTest {
     }
 
     @Test
-    fun `noteCard does not display content when whitespace`() {
+    fun noteCard_does_not_display_content_when_whitespace() {
         val note = Note(id = 1, title = "Заметка", content = "   ")
 
         composeTestRule.setContent {
@@ -73,7 +73,7 @@ class NoteCardTest {
     }
 
     @Test
-    fun `noteCard displays title and content with ellipsis when long`() {
+    fun noteCard_displays_title_and_content_with_ellipsis_when_long() {
         val longContent = "A".repeat(500)
         val note = Note(id = 1, title = "Длинный заголовок", content = longContent)
 

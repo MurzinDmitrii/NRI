@@ -10,7 +10,7 @@ import org.junit.Test
 class BagItemDialogLogicTest {
 
     @Test
-    fun `createBagItem from valid form values returns non-null item`() {
+    fun createBagItem_from_valid_form_values_returns_non_null_item() {
         // Given valid form values
         val name = "Меч"
         val description = "Острый меч"
@@ -43,7 +43,7 @@ class BagItemDialogLogicTest {
     }
 
     @Test
-    fun `createBagItem with armor type sets armorClass`() {
+    fun createBagItem_with_armor_type_sets_armorClass() {
         val item = createBagItem(
             name = "Доспех",
             description = "Тяжёлый доспех",
@@ -62,7 +62,7 @@ class BagItemDialogLogicTest {
     }
 
     @Test
-    fun `createBagItem with card type sets uses`() {
+    fun createBagItem_with_card_type_sets_uses() {
         val item = createBagItem(
             name = "Карта огня",
             description = "Огненный шар",
@@ -82,7 +82,7 @@ class BagItemDialogLogicTest {
     }
 
     @Test
-    fun `createBagItem with MISC type has no special fields`() {
+    fun createBagItem_with_MISC_type_has_no_special_fields() {
         val item = createBagItem(
             name = "Зелье",
             description = "Лечебное зелье",
@@ -103,7 +103,7 @@ class BagItemDialogLogicTest {
     }
 
     @Test
-    fun `quantity coerced to minimum 1 when zero`() {
+    fun quantity_coerced_to_minimum_1_when_zero() {
         val item = createBagItem(
             name = "Вещь",
             description = "",
@@ -119,7 +119,7 @@ class BagItemDialogLogicTest {
     }
 
     @Test
-    fun `quantity coerced to minimum 1 when negative`() {
+    fun quantity_coerced_to_minimum_1_when_negative() {
         val item = createBagItem(
             name = "Вещь",
             description = "",
@@ -135,7 +135,7 @@ class BagItemDialogLogicTest {
     }
 
     @Test
-    fun `damage is null when empty string for non-weapon type`() {
+    fun damage_is_null_when_empty_string_for_non_weapon_type() {
         val item = createBagItem(
             name = "Щит",
             description = "",
@@ -152,7 +152,7 @@ class BagItemDialogLogicTest {
     }
 
     @Test
-    fun `weaponType is null for non-weapon type`() {
+    fun weaponType_is_null_for_non_weapon_type() {
         val item = createBagItem(
             name = "Зелье",
             description = "",
@@ -169,7 +169,7 @@ class BagItemDialogLogicTest {
     }
 
     @Test
-    fun `armorClass is null for non-armor type`() {
+    fun armorClass_is_null_for_non_armor_type() {
         val item = createBagItem(
             name = "Меч",
             description = "",
@@ -186,7 +186,7 @@ class BagItemDialogLogicTest {
     }
 
     @Test
-    fun `uses is null for non-card type`() {
+    fun uses_is_null_for_non_card_type() {
         val item = createBagItem(
             name = "Зелье",
             description = "",
@@ -203,7 +203,7 @@ class BagItemDialogLogicTest {
     }
 
     @Test
-    fun `trim removes whitespace from name and description`() {
+    fun trim_removes_whitespace_from_name_and_description() {
         val item = createBagItem(
             name = "  Меч  ",
             description = "  Острый меч  ",
@@ -221,7 +221,7 @@ class BagItemDialogLogicTest {
     }
 
     @Test
-    fun `empty damage string becomes null`() {
+    fun empty_damage_string_becomes_null() {
         val item = createBagItem(
             name = "Меч",
             description = "",

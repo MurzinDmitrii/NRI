@@ -14,7 +14,7 @@ class CardDialogTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun `new dialog shows title Новая карта`() {
+    fun new_dialog_shows_title_Новая_карта() {
         composeTestRule.setContent {
             CardDialog(
                 initial = null,
@@ -27,7 +27,7 @@ class CardDialogTest {
     }
 
     @Test
-    fun `edit dialog shows title Редактировать карту`() {
+    fun edit_dialog_shows_title_Редактировать_карту() {
         val existingCard = Card(id = 1, name = "Меч", description = "Острый")
 
         composeTestRule.setContent {
@@ -42,7 +42,7 @@ class CardDialogTest {
     }
 
     @Test
-    fun `edit dialog pre-fills with existing values`() {
+    fun edit_dialog_prefills_with_existing_values() {
         val existingCard = Card(id = 1, name = "Карта Огня", description = "Огненный шар")
 
         composeTestRule.setContent {
@@ -58,7 +58,7 @@ class CardDialogTest {
     }
 
     @Test
-    fun `dialog always shows Save and Cancel buttons`() {
+    fun dialog_always_shows_Save_and_Cancel_buttons() {
         composeTestRule.setContent {
             CardDialog(
                 initial = null,
@@ -72,7 +72,7 @@ class CardDialogTest {
     }
 
     @Test
-    fun `onDismiss called when Cancel clicked`() {
+    fun onDismiss_called_when_Cancel_clicked() {
         var dismissed = false
 
         composeTestRule.setContent {
@@ -89,7 +89,7 @@ class CardDialogTest {
     }
 
     @Test
-    fun `onConfirm called with correct Card when Save clicked`() {
+    fun onConfirm_called_with_correct_Card_when_Save_clicked() {
         var receivedCard: Card? = null
 
         composeTestRule.setContent {
@@ -107,7 +107,7 @@ class CardDialogTest {
     }
 
     @Test
-    fun `new dialog pre-fills with empty values`() {
+    fun new_dialog_prefills_with_empty_values() {
         composeTestRule.setContent {
             CardDialog(
                 initial = null,
@@ -122,7 +122,7 @@ class CardDialogTest {
     }
 
     @Test
-    fun `edit dialog shows existing name and description fields`() {
+    fun edit_dialog_shows_existing_name_and_description_fields() {
         val existingCard = Card(id = 1, name = "Старая карта", description = "Старое описание")
 
         composeTestRule.setContent {

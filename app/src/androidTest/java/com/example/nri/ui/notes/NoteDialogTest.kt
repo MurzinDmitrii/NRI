@@ -13,7 +13,7 @@ class NoteDialogTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun `dialog shows custom title`() {
+    fun dialog_shows_custom_title() {
         composeTestRule.setContent {
             NoteDialog(
                 title = "Новая заметка",
@@ -28,7 +28,7 @@ class NoteDialogTest {
     }
 
     @Test
-    fun `dialog shows label Заголовок`() {
+    fun dialog_shows_label_Заголовок() {
         composeTestRule.setContent {
             NoteDialog(
                 title = "Редактировать",
@@ -43,7 +43,7 @@ class NoteDialogTest {
     }
 
     @Test
-    fun `dialog shows label Содержание`() {
+    fun dialog_shows_label_Содержание() {
         composeTestRule.setContent {
             NoteDialog(
                 title = "Новая заметка",
@@ -58,7 +58,7 @@ class NoteDialogTest {
     }
 
     @Test
-    fun `dialog pre-fills title and content`() {
+    fun dialog_prefills_title_and_content() {
         composeTestRule.setContent {
             NoteDialog(
                 title = "Редактировать",
@@ -74,7 +74,7 @@ class NoteDialogTest {
     }
 
     @Test
-    fun `dialog always shows Save and Cancel buttons`() {
+    fun dialog_always_shows_Save_and_Cancel_buttons() {
         composeTestRule.setContent {
             NoteDialog(
                 title = "Новая заметка",
@@ -90,7 +90,7 @@ class NoteDialogTest {
     }
 
     @Test
-    fun `onDismiss called when Cancel clicked`() {
+    fun onDismiss_called_when_Cancel_clicked() {
         var dismissed = false
 
         composeTestRule.setContent {
@@ -109,7 +109,7 @@ class NoteDialogTest {
     }
 
     @Test
-    fun `onConfirm called with title and content when Save clicked`() {
+    fun onConfirm_called_with_title_and_content_when_Save_clicked() {
         var receivedTitle: String? = null
         var receivedContent: String? = null
 
@@ -133,7 +133,7 @@ class NoteDialogTest {
     }
 
     @Test
-    fun `new dialog pre-fills with empty values`() {
+    fun new_dialog_prefills_with_empty_values() {
         composeTestRule.setContent {
             NoteDialog(
                 title = "Новая заметка",

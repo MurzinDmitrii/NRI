@@ -18,7 +18,7 @@ class BagItemDialogTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun `new dialog shows title Новая вещь`() {
+    fun new_dialog_shows_title_Новая_вещь() {
         composeTestRule.setContent {
             BagItemDialog(
                 initial = null,
@@ -32,7 +32,7 @@ class BagItemDialogTest {
     }
 
     @Test
-    fun `edit dialog shows title Редактировать`() {
+    fun edit_dialog_shows_title_Редактировать() {
         val existingItem = BagItem(
             id = 1,
             name = "Меч",
@@ -56,7 +56,7 @@ class BagItemDialogTest {
     }
 
     @Test
-    fun `new dialog pre-fills type with MISC`() {
+    fun new_dialog_prefills_type_with_MISC() {
         composeTestRule.setContent {
             BagItemDialog(
                 initial = null,
@@ -70,7 +70,7 @@ class BagItemDialogTest {
     }
 
     @Test
-    fun `edit dialog pre-fills with existing item values`() {
+    fun edit_dialog_prefills_with_existing_item_values() {
         val existingItem = BagItem(
             id = 1,
             name = "Стальной щит",
@@ -95,7 +95,7 @@ class BagItemDialogTest {
     }
 
     @Test
-    fun `dialog always shows Save and Cancel buttons`() {
+    fun dialog_always_shows_Save_and_Cancel_buttons() {
         composeTestRule.setContent {
             BagItemDialog(
                 initial = null,
@@ -110,7 +110,7 @@ class BagItemDialogTest {
     }
 
     @Test
-    fun `type dropdown shows all entries`() {
+    fun type_dropdown_shows_all_entries() {
         composeTestRule.setContent {
             BagItemDialog(
                 initial = null,
@@ -130,7 +130,7 @@ class BagItemDialogTest {
     }
 
     @Test
-    fun `weapon dialog shows weapon type and damage fields`() {
+    fun weapon_dialog_shows_weapon_type_and_damage_fields() {
         composeTestRule.setContent {
             BagItemDialog(
                 initial = null,
@@ -149,7 +149,7 @@ class BagItemDialogTest {
     }
 
     @Test
-    fun `armor dialog shows armor class field`() {
+    fun armor_dialog_shows_armor_class_field() {
         composeTestRule.setContent {
             BagItemDialog(
                 initial = null,
@@ -167,7 +167,7 @@ class BagItemDialogTest {
     }
 
     @Test
-    fun `card dialog shows card selection dropdown`() {
+    fun card_dialog_shows_card_selection_dropdown() {
         val testCards = listOf(
             Card(id = 1, name = "Карта огня", description = "Огненный шар"),
             Card(id = 2, name = "Карта льда", description = "Ледяная стрела")
@@ -197,7 +197,7 @@ class BagItemDialogTest {
     }
 
     @Test
-    fun `card dialog shows message when no cards available`() {
+    fun card_dialog_shows_message_when_no_cards_available() {
         composeTestRule.setContent {
             BagItemDialog(
                 initial = null,
@@ -218,7 +218,7 @@ class BagItemDialogTest {
     }
 
     @Test
-    fun `card type shows uses field`() {
+    fun card_type_shows_uses_field() {
         composeTestRule.setContent {
             BagItemDialog(
                 initial = null,
@@ -236,7 +236,7 @@ class BagItemDialogTest {
     }
 
     @Test
-    fun `onConfirm called with correct BagItem when Save clicked`() {
+    fun onConfirm_called_with_correct_BagItem_when_Save_clicked() {
         var receivedItem: BagItem? = null
 
         composeTestRule.setContent {
@@ -255,7 +255,7 @@ class BagItemDialogTest {
     }
 
     @Test
-    fun `onDismiss called when Cancel clicked`() {
+    fun onDismiss_called_when_Cancel_clicked() {
         var dismissed = false
 
         composeTestRule.setContent {
@@ -273,7 +273,7 @@ class BagItemDialogTest {
     }
 
     @Test
-    fun `weapon dialog pre-fills weapon type and damage`() {
+    fun weapon_dialog_prefills_weapon_type_and_damage() {
         val existingItem = BagItem(
             id = 1,
             name = "Меч",

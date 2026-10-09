@@ -13,7 +13,7 @@ class CardRowTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun `cardRow displays card name`() {
+    fun cardRow_displays_card_name() {
         val card = Card(id = 1, name = "Карта Огня", description = "Огненный шар")
 
         composeTestRule.setContent {
@@ -28,7 +28,7 @@ class CardRowTest {
     }
 
     @Test
-    fun `cardRow displays description when not blank`() {
+    fun cardRow_displays_description_when_not_blank() {
         val card = Card(id = 1, name = "Карта Льда", description = "Ледяная стрела")
 
         composeTestRule.setContent {
@@ -43,7 +43,7 @@ class CardRowTest {
     }
 
     @Test
-    fun `cardRow does not display description when blank`() {
+    fun cardRow_does_not_display_description_when_blank() {
         val card = Card(id = 1, name = "Простая карта", description = "")
 
         composeTestRule.setContent {
@@ -58,7 +58,7 @@ class CardRowTest {
     }
 
     @Test
-    fun `cardRow does not display description when whitespace`() {
+    fun cardRow_does_not_display_description_when_whitespace() {
         val card = Card(id = 1, name = "Карта", description = "   ")
 
         composeTestRule.setContent {

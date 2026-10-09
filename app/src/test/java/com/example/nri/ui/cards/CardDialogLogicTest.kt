@@ -9,7 +9,7 @@ import org.junit.Test
 class CardDialogLogicTest {
 
     @Test
-    fun `createCard from valid form values returns item with trimmed name and description`() {
+    fun createCard_from_valid_form_values_returns_item_with_trimmed_name_and_description() {
         val card = createCard(
             name = "  Карта Огня  ",
             description = "  Огненный шар  "
@@ -20,7 +20,7 @@ class CardDialogLogicTest {
     }
 
     @Test
-    fun `createCard preserves name when already trimmed`() {
+    fun createCard_preserves_name_when_already_trimmed() {
         val card = createCard(name = "Ледяная стрела", description = "")
 
         assertEquals("Ледяная стрела", card.name)
@@ -28,21 +28,21 @@ class CardDialogLogicTest {
     }
 
     @Test
-    fun `createCard with id 0 for new cards`() {
+    fun createCard_with_id_0_for_new_cards() {
         val card = createCard(name = "Новая", description = "")
 
         assertEquals(0L, card.id)
     }
 
     @Test
-    fun `createCard with existing id preserves it`() {
+    fun createCard_with_existing_id_preserves_it() {
         val card = createCard(id = 42, name = "Существующая", description = "")
 
         assertEquals(42L, card.id)
     }
 
     @Test
-    fun `name must not be blank`() {
+    fun name_must_not_be_blank() {
         val blankCard = createCard(name = "", description = "")
         assertTrue(blankCard.name.isBlank())
 
@@ -51,7 +51,7 @@ class CardDialogLogicTest {
     }
 
     @Test
-    fun `description can be empty`() {
+    fun description_can_be_empty() {
         val card = createCard(name = "Карта", description = "")
 
         assertEquals("", card.description)
@@ -59,7 +59,7 @@ class CardDialogLogicTest {
     }
 
     @Test
-    fun `description can be non-blank`() {
+    fun description_can_be_non_blank() {
         val card = createCard(name = "Карта", description = "Описание карты")
 
         assertEquals("Описание карты", card.description)
